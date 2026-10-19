@@ -1,11 +1,11 @@
 "use client";
 
 import { useAccount, useReadContract, useReadContracts } from "wagmi";
-import { amoy } from "../wagmi";
+import { targetChain } from "../wagmi";
 import { canopyCreditsAbi } from "./abi";
 import { CONTRACT_ADDRESS, IS_DEPLOYED, tokenIdFor } from "./index";
 
-const base = { address: CONTRACT_ADDRESS, abi: canopyCreditsAbi, chainId: amoy.id } as const;
+const base = { address: CONTRACT_ADDRESS, abi: canopyCreditsAbi, chainId: targetChain.id } as const;
 
 /** On-chain project record. `data` is undefined (with isError) when the project isn't registered. */
 export function useOnChainProject(projectId: number | undefined) {

@@ -11,7 +11,7 @@ import { api } from "@/lib/api/client";
 import { canopyCreditsAbi, CONTRACT_ADDRESS, IS_DEPLOYED, splitTokenId } from "@/lib/contract";
 import { scanRegistryEvents } from "@/lib/contract/events";
 import { errorMessage, fmtCredits, fmtDate } from "@/lib/format";
-import { amoy } from "@/lib/wagmi";
+import { targetChain } from "@/lib/wagmi";
 
 export default function CertificatePage() {
   return (
@@ -27,12 +27,12 @@ function Certificate() {
   const txFromUrl = searchParams.get("tx");
   const valid = /^\d+$/.test(params.id) && BigInt(params.id) > 0n;
   const retirementId = valid ? BigInt(params.id) : 0n;
-  const publicClient = usePublicClient({ chainId: amoy.id });
+  const publicClient = usePublicClient({ chainId: targetChain.id });
 
   const retirement = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: canopyCreditsAbi,
-    chainId: amoy.id,
+    chainId: targetChain.id,
     functionName: "getRetirement",
     args: [retirementId],
     query: { enabled: IS_DEPLOYED && valid, retry: false },

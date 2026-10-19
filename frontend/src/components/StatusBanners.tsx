@@ -3,14 +3,14 @@
 import { useAccount, useSwitchChain } from "wagmi";
 import { useMockMode } from "@/lib/api/mode";
 import { API_URL } from "@/lib/config";
-import { amoy } from "@/lib/wagmi";
+import { targetChain } from "@/lib/wagmi";
 
 /** Mock-data and wrong-network banners shown under the header on every page. */
 export function StatusBanners() {
   const mock = useMockMode();
   const { isConnected, chainId } = useAccount();
   const { switchChain, isPending } = useSwitchChain();
-  const wrongNetwork = isConnected && chainId !== amoy.id;
+  const wrongNetwork = isConnected && chainId !== targetChain.id;
 
   if (!mock && !wrongNetwork) return null;
   return (
@@ -23,14 +23,14 @@ export function StatusBanners() {
       )}
       {wrongNetwork && (
         <div className="flex flex-wrap items-center justify-center gap-3 bg-red-100 px-4 py-2 text-sm text-red-900">
-          Your wallet is on the wrong network. CanopyChain runs on Polygon Amoy.
+          Your wallet is on the wrong network. CanopyChain runs on {targetChain.name}.
           <button
             type="button"
-            onClick={() => switchChain({ chainId: amoy.id })}
+            onClick={() => switchChain({ chainId: targetChain.id })}
             disabled={isPending}
             className="rounded-md bg-red-700 px-3 py-1 font-medium text-white hover:bg-red-800 disabled:opacity-60"
           >
-            {isPending ? "Switching…" : "Switch to Amoy"}
+            {isPending ? "Switching…" : `Switch to ${targetChain.name}`}
           </button>
         </div>
       )}

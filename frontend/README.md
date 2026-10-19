@@ -23,6 +23,26 @@ All are optional. Put them in `frontend/.env.local` (gitignored).
 | `NEXT_PUBLIC_API_URL` | `http://localhost:8000` | Backend base URL (`docs/api.md` §2) |
 | `NEXT_PUBLIC_AMOY_RPC_URL` | `https://rpc-amoy.polygon.technology` | Polygon Amoy RPC for reads and event logs |
 | `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` | _(empty)_ | Enables RainbowKit's full wallet list. Without it, only injected browser wallets (MetaMask) are offered |
+| `NEXT_PUBLIC_CHAIN` | _(empty = Amoy)_ | `local` runs against a Hardhat node (chain 31337) using `contracts/deployments/local.json` instead of `shared/contracts.json` |
+| `NEXT_PUBLIC_LOCAL_RPC_URL` | `http://127.0.0.1:8545` | RPC for `NEXT_PUBLIC_CHAIN=local` |
+
+## Running everything locally (no Amoy needed)
+
+1. `cd contracts && npx hardhat node` (leave running), then in another shell `npm run deploy:local`.
+2. Start the backend with the oracle pointed at the local chain. These are Hardhat's public test keys, never real ones:
+   ```
+   cd backend
+   CONTRACTS_JSON=../contracts/deployments/local.json AMOY_RPC_URL=http://127.0.0.1:8545 \
+   ORACLE_PRIVATE_KEY=0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d \
+   .venv/Scripts/python -m uvicorn app.main:app --port 8000
+   ```
+3. `cd frontend && NEXT_PUBLIC_CHAIN=local npm run dev`. In MetaMask, add network "Hardhat" (RPC `http://127.0.0.1:8545`, chain id 31337) and import a Hardhat test account to retire credits.
+
+Running `npm run typecheck` or `npm run build` re-syncs `src/generated/contracts.json`. If you set `NEXT_PUBLIC_CHAIN=local` only in your shell, run those with it too, or put it in `.env.local`.
+
+## Browser end-to-end test
+
+With the three services from "Running everything locally" up: `npx playwright install chromium` (once), then `npm run e2e`. It drives a headless browser through connect wallet → draw and register a forest → verify → verify report integrity → retire → certificate → simulate deforestation → integrity of the reversal → registry, with a test wallet backed by Hardhat account #2. It fails on any step or browser console error and saves screenshots to `e2e/shots/`.
 
 ## Behaviour without the backend or the contract
 

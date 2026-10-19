@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { addressUrl, txUrl } from "@/lib/config";
+import { EXPLORER_URL, addressUrl, txUrl } from "@/lib/config";
 
 export function PrototypeBadge() {
   return (
@@ -53,6 +53,7 @@ export function shortHex(hex: string, chars = 6) {
 }
 
 export function TxLink({ hash, label }: { hash: string; label?: string }) {
+  if (!EXPLORER_URL) return <span className="font-mono" title={hash}>{label ?? shortHex(hash)}</span>;
   return (
     <a href={txUrl(hash)} target="_blank" rel="noreferrer" className="font-mono text-forest-700 underline hover:text-forest-900">
       {label ?? shortHex(hash)}
@@ -61,6 +62,7 @@ export function TxLink({ hash, label }: { hash: string; label?: string }) {
 }
 
 export function AddressLink({ address }: { address: string }) {
+  if (!EXPLORER_URL) return <span className="font-mono" title={address}>{shortHex(address, 4)}</span>;
   return (
     <a href={addressUrl(address)} target="_blank" rel="noreferrer" className="font-mono text-forest-700 underline hover:text-forest-900">
       {shortHex(address, 4)}

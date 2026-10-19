@@ -9,7 +9,7 @@ import { useAccount, usePublicClient, useWriteContract } from "wagmi";
 import { canopyCreditsAbi, CONTRACT_ADDRESS, IS_DEPLOYED } from "@/lib/contract";
 import type { VintageOnChain } from "@/lib/contract/hooks";
 import { errorMessage, fmtCredits } from "@/lib/format";
-import { amoy } from "@/lib/wagmi";
+import { targetChain } from "@/lib/wagmi";
 import { buttonClass, Card, ErrorBox, inputClass, Notice, Spinner, TxLink } from "../ui";
 import { NotDeployedNotice } from "./OnChainPanel";
 
@@ -19,7 +19,7 @@ export function RetirePanel({ rows }: { rows: VintageOnChain[] }) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const { isConnected, chainId } = useAccount();
-  const publicClient = usePublicClient({ chainId: amoy.id });
+  const publicClient = usePublicClient({ chainId: targetChain.id });
   const { writeContractAsync } = useWriteContract();
 
   const held = rows.filter((r) => (r.walletBalance ?? 0n) > 0n);
@@ -62,7 +62,7 @@ export function RetirePanel({ rows }: { rows: VintageOnChain[] }) {
   } catch {
     parsedAmount = 0n;
   }
-  const wrongNetwork = chainId !== amoy.id;
+  const wrongNetwork = chainId !== targetChain.id;
   const invalid = parsedAmount <= 0n || parsedAmount > balance || !beneficiary.trim();
 
   async function submit() {
@@ -76,7 +76,7 @@ export function RetirePanel({ rows }: { rows: VintageOnChain[] }) {
         abi: canopyCreditsAbi,
         functionName: "retire",
         args: [row.tokenId, parsedAmount, beneficiary.trim(), reason.trim()],
-        chainId: amoy.id,
+        chainId: targetChain.id,
       });
       setTxHash(hash);
       setStage("confirming");
@@ -157,7 +157,7 @@ export function RetirePanel({ rows }: { rows: VintageOnChain[] }) {
           />
         </label>
         {parsedAmount > balance && <p className="text-xs text-red-700">You only hold {fmtCredits(balance)}.</p>}
-        {wrongNetwork && <p className="text-xs text-red-700">Switch your wallet to Polygon Amoy first.</p>}
+        {wrongNetwork && <p className="text-xs text-red-700">Switch your wallet to {targetChain.name} first.</p>}
         {error && <ErrorBox>{error}</ErrorBox>}
         {txHash && (
           <p className="text-xs text-stone-600">

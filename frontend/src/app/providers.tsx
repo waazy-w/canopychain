@@ -5,7 +5,7 @@ import { lightTheme, RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState, type ReactNode } from "react";
 import { WagmiProvider } from "wagmi";
-import { amoy, wagmiConfig } from "@/lib/wagmi";
+import { targetChain, wagmiConfig } from "@/lib/wagmi";
 
 export function Providers({ children }: { children: ReactNode }) {
   const [queryClient] = useState(
@@ -14,7 +14,7 @@ export function Providers({ children }: { children: ReactNode }) {
   return (
     <WagmiProvider config={wagmiConfig}>
       <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider initialChain={amoy} theme={lightTheme({ accentColor: "#166534", borderRadius: "medium" })}>
+        <RainbowKitProvider initialChain={targetChain} theme={lightTheme({ accentColor: "#166534", borderRadius: "medium" })}>
           {children}
         </RainbowKitProvider>
       </QueryClientProvider>

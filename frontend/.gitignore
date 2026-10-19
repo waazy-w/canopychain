@@ -42,3 +42,4 @@ next-env.d.ts
 
 # generated from ../shared/contracts.json by scripts/sync-contracts.mjs
 /src/generated/
+e2e/shots/
