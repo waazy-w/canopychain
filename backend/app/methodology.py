@@ -31,8 +31,20 @@ def lost_credits(newly_deforested_ha: float, tco2e_per_ha: float) -> int:
     return int(round(max(0.0, newly_deforested_ha) * tco2e_per_ha))
 
 
+def _js_numbers(value: Any) -> Any:
+    """Write whole-number floats as ints (450.0 -> 450), the way JavaScript's JSON.stringify does,
+    so a verifier in either language gets the same bytes."""
+    if isinstance(value, float) and value.is_integer():
+        return int(value)
+    if isinstance(value, dict):
+        return {k: _js_numbers(v) for k, v in value.items()}
+    if isinstance(value, list):
+        return [_js_numbers(v) for v in value]
+    return value
+
+
 def canonical_json(report: dict[str, Any]) -> bytes:
-    body = {k: v for k, v in report.items() if k not in UNHASHED_FIELDS}
+    body = _js_numbers({k: v for k, v in report.items() if k not in UNHASHED_FIELDS})
     return json.dumps(body, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
 
 

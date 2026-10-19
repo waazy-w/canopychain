@@ -61,11 +61,12 @@ Prototype methodology (not certified):
 
 ```python
 body = {k: v for k, v in report.items() if k not in ("reportHash", "txHash", "onChainError", "lostCredits")}
+body = whole_number_floats_as_ints(body)   # 450.0 -> 450, recursively, like JSON.stringify
 canonical = json.dumps(body, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
 reportHash = "0x" + keccak256(canonical).hex()
 ```
 
-This is the `reportHash` passed to `submitVerification` / `flagReversal`. To check a report, fetch `GET /api/reports/{reportId}` and recompute. Use Python's `json.dumps` (or an equivalent canonicalizer): numbers are serialized as Python prints them, so whole-number floats keep their `.0` (e.g. `450.0`), which a plain `JSON.stringify` would drop.
+This is the `reportHash` passed to `submitVerification` / `flagReversal`. To check a report, fetch `GET /api/reports/{reportId}` and recompute. In JavaScript: drop the four fields above, sort object keys recursively, `JSON.stringify` with no spacing, UTF-8 encode, then `keccak256`. Both languages produce the same bytes.
 
 ---
 

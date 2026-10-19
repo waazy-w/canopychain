@@ -46,7 +46,9 @@ def target_dates() -> tuple[date, date]:
 
 
 def _now_iso() -> str:
-    return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+    # Millisecond precision: reports are ordered by createdAt, and a cached verify followed by a
+    # monitor can land in the same second.
+    return datetime.now(timezone.utc).isoformat(timespec="milliseconds").replace("+00:00", "Z")
 
 
 def _metadata_uri(project_id: int) -> str:

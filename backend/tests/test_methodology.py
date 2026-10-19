@@ -30,6 +30,12 @@ def test_hash_is_keccak_of_sorted_compact_json_without_tx_fields():
     assert report_hash(report) == "0x" + keccak(expected_body.encode("utf-8")).hex()
 
 
+def test_canonical_json_matches_javascript_number_format():
+    # JSON.stringify writes 450.0 as 450 and 0.0 as 0; non-integral floats are unchanged.
+    report = {"tco2ePerHa": 450.0, "nested": [0.0, 2.5, {"ha": 1180.0}], "n": 3}
+    assert canonical_json(report) == b'{"n":3,"nested":[0,2.5,{"ha":1180}],"tco2ePerHa":450}'
+
+
 def test_hash_ignores_key_order_and_unhashed_fields():
     a = {"x": 1, "y": [1, 2]}
     b = {"y": [1, 2], "x": 1, "txHash": "0xabc", "reportHash": "0xdef"}
