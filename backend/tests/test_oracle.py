@@ -100,8 +100,8 @@ def test_send_builds_signs_and_waits():
     o._contract.functions.submitVerification.assert_called_once_with(3, 2026, 9658, bytes.fromhex("11" * 32), "http://x/r")
     params = fn.build_transaction.call_args.args[0]
     assert params["nonce"] == 7 and params["chainId"] == 80002 and params["from"] == "0xOracle"
-    assert params["maxPriorityFeePerGas"] == 30 * 10**9  # Amoy minimum tip enforced
-    assert params["maxFeePerGas"] == 2 * 10**9 + 30 * 10**9
+    assert params["maxPriorityFeePerGas"] == 35 * 10**9  # fixed Amoy tip, not the inflated estimate
+    assert params["maxFeePerGas"] == 2 * 10**9 + 35 * 10**9
     w3.eth.wait_for_transaction_receipt.assert_called_once()
 
 

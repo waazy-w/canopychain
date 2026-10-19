@@ -18,6 +18,8 @@ const config: HardhatUserConfig = {
       url: AMOY_RPC_URL,
       chainId: 80002,
       accounts: DEPLOYER_PRIVATE_KEY ? [DEPLOYER_PRIVATE_KEY] : [],
+      // Amoy's fee estimate often suggests 400+ gwei on near-empty blocks; 35 gwei clears its 25 gwei minimum.
+      gasPrice: 35_000_000_000,
     },
   },
   // Etherscan API V2: one etherscan.io key verifies on every chain, Polygon Amoy included.

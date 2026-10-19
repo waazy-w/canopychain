@@ -21,7 +21,9 @@ from .. import config
 log = logging.getLogger(__name__)
 
 AMOY_CHAIN_ID = 80002
-AMOY_MIN_PRIORITY_FEE = Web3.to_wei(30, "gwei")  # Amoy rejects tips under 25 gwei
+# Amoy rejects tips under 25 gwei, and its eth_maxPriorityFeePerGas often suggests 400+ gwei on near-empty
+# blocks, so we pay a fixed tip instead of trusting the estimate.
+AMOY_PRIORITY_FEE = Web3.to_wei(35, "gwei")
 RECEIPT_TIMEOUT_S = 120
 
 _send_lock = threading.Lock()  # one transaction at a time, so nonces never collide
@@ -167,9 +169,10 @@ class Oracle:
         base = self.w3.eth.get_block("latest").get("baseFeePerGas")
         if base is None:
             return {}
-        tip = self.w3.eth.max_priority_fee
         if self.w3.eth.chain_id == AMOY_CHAIN_ID:
-            tip = max(tip, AMOY_MIN_PRIORITY_FEE)
+            tip = AMOY_PRIORITY_FEE
+        else:
+            tip = self.w3.eth.max_priority_fee
         return {"maxPriorityFeePerGas": tip, "maxFeePerGas": base * 2 + tip}
 
     # -- errors ---------------------------------------------------------------
