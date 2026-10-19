@@ -81,9 +81,26 @@ function retire(uint256 tokenId, uint256 amount, string calldata beneficiary, st
 // burns from msg.sender and stores a Retirement record; returns retirementId
 function flagReversal(uint256 projectId, uint16 vintage, uint256 lostCredits, bytes32 reportHash) external; // ORACLE_ROLE
 // burns from the buffer pool (up to its balance) and sets the project status to Reversed
-function getProject(uint256 projectId) external view returns (Project memory);
-function getRetirement(uint256 retirementId) external view returns (Retirement memory);
+function getProject(uint256 projectId) external view returns (Project memory);       // reverts ProjectNotFound
+function getRetirement(uint256 retirementId) external view returns (Retirement memory); // reverts RetirementNotFound
+function getIssuance(uint256 tokenId) external view returns (Issuance memory);       // reverts NotVerified
+function tokenIdFor(uint256 projectId, uint16 vintage) external pure returns (uint256); // vintage must be 1..9999
+function bufferBalance(uint256 tokenId) external view returns (uint256);
+function retirementCount() external view returns (uint256); // retirement ids start at 1
+function totalSupply(uint256 tokenId) external view returns (uint256);                // ERC1155Supply
 ```
+
+Structs and buffer rules:
+```solidity
+enum ProjectStatus { None, Active, Reversed }
+struct Project    { address owner; ProjectStatus status; uint64 registeredAt; uint256 totalIssued; uint256 totalBufferBurned; string metadataURI; }
+struct Issuance   { uint256 projectId; uint16 vintage; uint256 credits; uint256 buffer; bytes32 reportHash; string reportURI; uint64 issuedAt; }
+struct Retirement { uint256 tokenId; address by; uint256 amount; uint64 retiredAt; string beneficiary; string reason; }
+```
+- `credits` in `submitVerification` / `CreditsIssued` is the **total** minted. `buffer = credits / 10` (rounded down) goes to the buffer pool, and the owner gets `credits - buffer`.
+- The buffer pool is the contract's own address. Nobody can transfer from it. Only `flagReversal` burns from it.
+- A `Reversed` project can't receive new issuance. Credits already issued (and retirements) stay valid.
+- Reverts use custom errors: `NotAdminOrOracle`, `ZeroAddress`, `ZeroAmount`, `InvalidVintage`, `ProjectAlreadyRegistered`, `ProjectNotFound`, `ProjectReversed`, `AlreadyVerified`, `NotVerified`, `RetirementNotFound`, plus OpenZeppelin's `AccessControlUnauthorizedAccount` and `ERC1155InsufficientBalance`.
 
 Events (the frontend registry is built from these):
 ```solidity
@@ -99,3 +116,4 @@ Transfers and trading use standard ERC-1155 `safeTransferFrom`. A marketplace is
 
 ## Changelog
 - v0 (Oct 19): initial draft
+- v0.1 (Oct 19): contract section matches `CanopyCredits.sol`. Added structs, `getIssuance`, `tokenIdFor`, `bufferBalance`, `retirementCount`, `totalSupply`, the buffer rounding rule and custom errors. Nothing removed or renamed.
