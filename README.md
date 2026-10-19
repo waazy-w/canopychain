@@ -14,6 +14,11 @@ Many forest carbon credits are over-issued, double-counted, or keep trading afte
 
 > The carbon methodology here is a prototype estimate, not a certified standard.
 
+## Architecture
+![CanopyChain architecture](docs/architecture.png)
+
+More detail: [overview](docs/overview.md) · [security](docs/security.md) · [climate impact](docs/impact.md) · [roadmap](docs/roadmap.md) · [API and contract interface](docs/api.md)
+
 ## Repo layout
 ```
 contracts/   Solidity + Hardhat (Polygon Amoy)

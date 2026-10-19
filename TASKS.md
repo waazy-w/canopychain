@@ -41,11 +41,11 @@ Tasks marked **(saaz)** need saaz personally (wallets, keys, recording, submitti
 - [ ] Fix integration bugs. Freeze the contract interface.
 
 ## Submission deliverables (Oct 23–25)
-- [ ] Architecture diagram `docs/architecture.png`
-- [ ] Security & data integrity assessment `docs/security.md`: roles, oracle trust, double counting, reentrancy, report hashing
-- [ ] Climate impact assessment and carbon reduction projections `docs/impact.md`
-- [ ] Problem and solution overview, at most 2 pages `docs/overview.md`
-- [ ] Implementation & adoption strategy + scalability roadmap `docs/roadmap.md`
+- [x] Architecture diagram `docs/architecture.png`
+- [x] Security & data integrity assessment `docs/security.md`: roles, oracle trust, double counting, reentrancy, report hashing
+- [x] Climate impact assessment and carbon reduction projections `docs/impact.md`
+- [x] Problem and solution overview, at most 2 pages `docs/overview.md`
+- [x] Implementation & adoption strategy + scalability roadmap `docs/roadmap.md`
 - [ ] README: setup, run, deployed address, screenshots
 - [ ] 3-minute demo video (saaz)
 - [ ] Devpost submission, done before Oct 25 18:00 UTC to leave a buffer; update the team list there too (saaz)
