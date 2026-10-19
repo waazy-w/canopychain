@@ -9,7 +9,7 @@ type Tone = "accent" | "sat";
 const STEPS: { title: string; body: string; tone: Tone; icon: ReactNode }[] = [
   {
     title: "Register a forest",
-    body: "Draw the project boundary on a satellite map. The polygon is stored and the project is registered on-chain.",
+    body: "Draw the boundary on a satellite map and sign it with your wallet. An approver checks the land title before it goes on-chain.",
     tone: "accent",
     icon: <path d="M4 7l5-3 6 3 5-3v13l-5 3-6-3-5 3V7Zm5-3v13m6-10v13" />,
   },
@@ -49,6 +49,33 @@ const TONE = {
   accent: { badge: "text-accent border-accent/25 bg-accent/10", icon: "text-accent", hover: "hover:border-accent/40" },
   sat: { badge: "text-sat border-sat/25 bg-sat/10", icon: "text-sat", hover: "hover:border-sat/40" },
 } as const;
+
+const SAFEGUARDS = [
+  {
+    title: "Signed ownership",
+    body: "The owner's wallet signs every registration, and the signature expires after ten minutes. Nobody can register a forest in someone else's name.",
+  },
+  {
+    title: "One forest, one project",
+    body: "A boundary that overlaps an existing project is refused, so the same trees can't back two sets of credits.",
+  },
+  {
+    title: "Independent approval",
+    body: "The contract admin signs off on land title and fixes the methodology inputs. Nothing reaches the chain before that, and nobody can inflate the numbers later.",
+  },
+  {
+    title: "Only the oracle mints",
+    body: "Credits are minted solely by the oracle role, once per project and vintage. The contract rejects a second verification of the same year.",
+  },
+  {
+    title: "Tamper-evident reports",
+    body: "Each satellite report's keccak256 hash is written on-chain. Anyone can recompute it in the browser and prove the report wasn't edited.",
+  },
+  {
+    title: "Reversals hit the buffer",
+    body: "10% of every issuance is held back. When re-checks find forest loss, the buffer is burned and the project is flagged in public.",
+  },
+] as const;
 
 const FACTS = [
   { value: "10 m", label: "Sentinel-2 resolution", tone: "sat" },
@@ -118,6 +145,27 @@ export default function Home() {
         </dl>
       </section>
 
+      <section className="grid gap-8 rounded-3xl border border-line bg-surface/60 p-6 sm:p-10 lg:grid-cols-[1fr_1.3fr] lg:items-center">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sat">Why it matters</p>
+          <p className="mt-4 text-5xl font-semibold tracking-tight text-ink sm:text-6xl">6M+ ha</p>
+          <p className="mt-2 text-sm text-muted">
+            of tropical primary forest lost in 2024, a record year (Global Forest Watch, WRI / University of Maryland).
+          </p>
+        </div>
+        <div className="space-y-4 text-muted">
+          <p className="leading-relaxed">
+            Carbon finance can pay communities to keep forests standing, but only if every credit stands for a real tonne
+            of CO2 that stayed in the trees. When credits are over-issued, double-counted or keep trading after the forest
+            burns, buyers claim reductions that never happened.
+          </p>
+          <p className="leading-relaxed">
+            CanopyChain&apos;s impact is <span className="font-medium text-ink">integrity</span>: every credit is tied to a
+            satellite measurement, a signed approval and a public, permanent record.
+          </p>
+        </div>
+      </section>
+
       <section>
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">How it works</p>
         <h2 className="scrub-words mt-3 max-w-2xl text-3xl font-semibold tracking-tight text-ink">
@@ -155,6 +203,32 @@ export default function Home() {
             );
           })}
         </ol>
+      </section>
+
+      <section className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr]">
+        <div className="lg:sticky lg:top-28 lg:self-start">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">Safeguards</p>
+          <h2 className="scrub-words mt-3 text-3xl font-semibold tracking-tight text-ink">
+            <ScrubWords text="Trust enforced by code, not promised in a PDF." />
+          </h2>
+          <p className="mt-4 leading-relaxed text-muted">
+            Every rule below is enforced by the smart contract or by the verification backend, and the security
+            assessment in the repository explains each one, including what is still trusted.
+          </p>
+        </div>
+        <ul className="grid gap-px overflow-hidden rounded-2xl border border-line bg-line sm:grid-cols-2">
+          {SAFEGUARDS.map((g, i) => (
+            <li key={g.title} className="scrub-rise bg-surface p-6" style={{ "--i": i % 2 } as CSSProperties}>
+              <span aria-hidden className="flex h-7 w-7 items-center justify-center rounded-full bg-accent/10 text-accent">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4">
+                  <path d="m5 12.5 4.5 4.5L19 7.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </span>
+              <h3 className="mt-4 font-semibold text-ink">{g.title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-muted">{g.body}</p>
+            </li>
+          ))}
+        </ul>
       </section>
     </div>
   );
