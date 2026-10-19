@@ -65,17 +65,18 @@ ax.text(0.2, 8.5, "Forest carbon credits verified by satellite and issued on-cha
 
 # Users
 box(0.2, 5.9, 2.4, 1.2, "Project owner", "wallet", fc="white", ec=MUTED)
+box(0.2, 4.05, 2.4, 1.2, "Approver", "contract admin wallet", fc="white", ec=MUTED)
 box(0.2, 2.2, 2.4, 1.2, "Credit buyer", "wallet", fc="white", ec=MUTED)
 
 # Frontend
 group(3.2, 1.3, 3.5, 6.5, "Frontend", BLUE_BG, BLUE)
 box(3.45, 1.6, 3.0, 5.6, "dApp (Next.js)",
-    "wagmi · viem · RainbowKit\nLeaflet map\n\nRegister project\n(draw polygon)\n\nRun verification\nbefore / after NDVI\n\nRetire credits\n→ certificate\n\nPublic registry\n(on-chain events)",
+    "wagmi · viem · RainbowKit\nLeaflet map\n\nRegister project\n(draw + sign polygon)\n\nReview: approve / reject\n(signed, fixes inputs)\n\nRun verification\nbefore / after NDVI\n\nRetire → certificate\n\nPublic registry\n(on-chain events)",
     fc="white", ec=BLUE, title_color=BLUE)
 
 # Backend
 group(7.3, 0.9, 4.5, 6.9, "Backend (Python · FastAPI)", GREEN_BG, GREEN)
-box(7.55, 6.0, 4.0, 1.05, "REST API", "/api/projects · /verify · /monitor · /reports", fc="white", ec=GREEN, title_color=GREEN)
+box(7.55, 5.8, 4.0, 1.4, "REST API + integrity gate", "/projects · /review · /verify · /monitor\nsignatures · overlap check · approval gate", fc="white", ec=GREEN, title_color=GREEN, title_size=12)
 box(7.55, 3.95, 4.0, 1.65, "Verification engine",
     "cloud mask (SCL) · NDVI · forest ha\nbaseline vs current · deforested ha\ntCO2e = avoided loss × tCO2e/ha",
     fc="white", ec=GREEN, title_color=GREEN)
@@ -93,14 +94,15 @@ box(13.0, 1.15, 2.85, 2.75, "CanopyCredits",
     fc="white", ec=PURPLE, title_color=PURPLE, title_size=11.5)
 
 # Arrows: users → dApp
-arrow((2.6, 6.5), (3.45, 6.0), "draw polygon", label_xy=(2.95, 6.85), fs=8.8)
+arrow((2.6, 6.5), (3.45, 6.0), "draw + sign", label_xy=(2.95, 6.85), fs=8.8)
+arrow((2.6, 4.65), (3.45, 4.65), "sign approval", label_xy=(3.0, 4.95), fs=8.8)
 arrow((2.6, 2.8), (3.45, 3.2), "retire", label_xy=(2.95, 2.55), fs=8.8)
 
 # dApp ↔ API
-arrow((6.45, 6.55), (7.55, 6.55), "REST", label_xy=(7.0, 6.85), both=True)
+arrow((6.45, 6.5), (7.55, 6.5), "REST", label_xy=(7.0, 6.8), both=True)
 
 # API → engine → store → oracle
-arrow((9.55, 6.0), (9.55, 5.6), color=GREEN)
+arrow((9.55, 5.8), (9.55, 5.6), color=GREEN)
 arrow((9.55, 3.95), (9.55, 3.6), color=GREEN)
 arrow((9.55, 2.55), (9.55, 2.2), "hash + credits", label_xy=(10.45, 2.37), color=GREEN, fs=8.6)
 
