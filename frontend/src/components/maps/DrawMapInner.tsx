@@ -1,7 +1,7 @@
 "use client";
 
+// Geoman itself is loaded by the DrawMap loader in ./index.tsx, after window.L is set.
 import "leaflet/dist/leaflet.css";
-import "@geoman-io/leaflet-geoman-free";
 import "@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css";
 import L from "leaflet";
 import { useEffect, useRef } from "react";

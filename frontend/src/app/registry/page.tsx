@@ -11,7 +11,7 @@ import { api } from "@/lib/api/client";
 import { IS_DEPLOYED } from "@/lib/contract";
 import { scanRegistryEvents, type RegistryEvent, type ScanProgress } from "@/lib/contract/events";
 import { errorMessage, fmtCredits, fmtHa } from "@/lib/format";
-import { amoy } from "@/lib/wagmi";
+import { targetChain } from "@/lib/wagmi";
 
 export default function RegistryPage() {
   const projects = useQuery({ queryKey: ["projects"], queryFn: api.listProjects });
@@ -64,7 +64,10 @@ export default function RegistryPage() {
                     <td className="py-2 pr-3">
                       {p.latestReport ? <ReportStatusBadge status={p.latestReport.status} /> : <Badge tone="gray">Not verified</Badge>}
                     </td>
-                    <td className="py-2">{p.latestReport ? fmtCredits(p.latestReport.creditsEstimated) : "—"}</td>
+                    <td className="py-2">{/* Monitoring reports carry no credit estimate; the badge already shows the reversal. */}
+                      {p.latestReport && p.latestReport.kind !== "monitoring" && p.latestReport.status !== "reversal_detected"
+                        ? fmtCredits(p.latestReport.creditsEstimated)
+                        : "—"}</td>
                   </tr>
                 ))}
               </tbody>
@@ -79,7 +82,7 @@ export default function RegistryPage() {
 }
 
 function EventFeed() {
-  const client = usePublicClient({ chainId: amoy.id });
+  const client = usePublicClient({ chainId: targetChain.id });
   const [scan, setScan] = useState<ScanProgress | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [runId, setRunId] = useState(0);

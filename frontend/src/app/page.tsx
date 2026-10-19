@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { buttonClass, secondaryButtonClass } from "@/components/ui";
+import { buttonClass } from "@/components/ui";
 import { METHODOLOGY_NOTE } from "@/lib/config";
 
 const STEPS = [
@@ -27,7 +27,10 @@ export default function Home() {
           <Link href="/register" className={`${buttonClass} bg-white !text-forest-900 hover:bg-forest-50`}>
             Register a forest
           </Link>
-          <Link href="/registry" className={`${secondaryButtonClass} border-forest-200 bg-transparent !text-white hover:bg-forest-700`}>
+          <Link
+            href="/registry"
+            className="inline-flex items-center justify-center gap-2 rounded-lg border border-forest-200 px-4 py-2 text-sm font-medium text-white hover:bg-forest-700"
+          >
             Open the registry
           </Link>
         </div>
