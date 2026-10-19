@@ -5,6 +5,8 @@ import type {
   ProjectSummary,
   RegisterRequest,
   RegisterResponse,
+  ReviewRequest,
+  ReviewResponse,
   VerifyResponse,
 } from "../api/types";
 import { currentVintage, polygonAreaHa } from "../geo";
@@ -42,6 +44,7 @@ export async function mockRequest<T>(method: "GET" | "POST", path: string, body?
     if (!req?.name || !req?.owner || req?.polygon?.type !== "Polygon") {
       throw new ApiError(400, "name, owner and a GeoJSON Polygon are required");
     }
+    if (!req.signature) throw new ApiError(403, "The owner wallet must sign the registration");
     const projectId = Math.max(0, ...db().map((p) => p.projectId)) + 1;
     db().push({
       projectId,
@@ -50,16 +53,52 @@ export async function mockRequest<T>(method: "GET" | "POST", path: string, body?
       polygon: req.polygon,
       areaHa: polygonAreaHa(req.polygon),
       createdAt: new Date().toISOString(),
+      status: "pending",
+      review: null,
+      ownerSignature: req.signature,
       onChainRegistered: false,
       latestReport: null,
       reports: [],
     });
-    return { projectId, txHash: null } satisfies RegisterResponse as T;
+    return { projectId, status: "pending", txHash: null } satisfies RegisterResponse as T;
+  }
+
+  // Mock mode has no contract to read the admin from, so any connected wallet may review.
+  if (parts[1] === "approvers" && parts[2] && method === "GET") {
+    return { address: parts[2], isApprover: true } as T;
   }
 
   if (parts[1] === "projects" && parts.length >= 3) {
     const p = find(Number(parts[2]));
     if (parts.length === 3 && method === "GET") return structuredClone(p) as T;
+
+    if (parts[3] === "review" && method === "POST") {
+      const req = body as ReviewRequest;
+      if (p.status !== "pending") throw new ApiError(409, `Project ${p.projectId} was already reviewed`);
+      p.status = req.decision === "approve" ? "active" : "rejected";
+      p.review = {
+        decision: req.decision,
+        reviewer: "mock approver",
+        reviewedAt: new Date().toISOString(),
+        regionalBaselineLossRatePct: req.regionalBaselineLossRatePct,
+        tco2ePerHa: req.tco2ePerHa,
+        note: req.note,
+        signature: req.signature,
+      };
+      return {
+        projectId: p.projectId,
+        status: p.status,
+        txHash: null,
+        onChainError: MOCK_ONCHAIN_NOTE,
+      } satisfies ReviewResponse as T;
+    }
+
+    if ((parts[3] === "verify" || parts[3] === "monitor") && p.status === "pending") {
+      throw new ApiError(403, `Project ${p.projectId} is pending review: an approver must approve it first`);
+    }
+    if ((parts[3] === "verify" || parts[3] === "monitor") && p.status === "rejected") {
+      throw new ApiError(403, `Project ${p.projectId} was rejected and can't be verified or monitored`);
+    }
 
     if (parts[3] === "verify" && method === "POST") {
       const vintage = currentVintage();
@@ -99,7 +138,10 @@ export async function mockRequest<T>(method: "GET" | "POST", path: string, body?
       });
       const lostCredits = simulate ? Math.round(report.deforestedHa * TCO2E_PER_HA) : 0;
       report.lostCredits = lostCredits;
-      if (simulate) report.creditsEstimated = 0;
+      if (simulate) {
+        report.creditsEstimated = 0;
+        p.status = "reversed";
+      }
       p.reports.unshift(report);
       p.latestReport = summary(report);
       return {

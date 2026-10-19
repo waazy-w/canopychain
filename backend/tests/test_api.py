@@ -1,22 +1,119 @@
+import copy
+from datetime import datetime, timedelta, timezone
+
+from eth_account import Account
+from eth_account.messages import encode_defunct
+
+from app import auth
 from app.methodology import METHODOLOGY, report_hash
-from tests.conftest import OWNER, PNG, POLYGON
+from tests.conftest import ADMIN, ADMIN_KEY, OWNER, OWNER_KEY, PNG, POLYGON
 
 
-def register(client, name="Test Forest"):
-    res = client.post("/api/projects", json={"name": name, "owner": OWNER, "polygon": POLYGON})
+def now_iso(delta: timedelta = timedelta(0)) -> str:
+    return (datetime.now(timezone.utc) + delta).isoformat(timespec="milliseconds").replace("+00:00", "Z")
+
+
+def sign(key: str, message: str) -> str:
+    return "0x" + bytes(Account.sign_message(encode_defunct(text=message), private_key=key).signature).hex()
+
+
+def shifted(dx: float) -> dict:
+    """POLYGON moved dx degrees east, so tests can register several non-overlapping projects."""
+    poly = copy.deepcopy(POLYGON)
+    poly["coordinates"] = [[[x + dx, y] for x, y in ring] for ring in poly["coordinates"]]
+    return poly
+
+
+def registration(name="Test Forest", polygon=POLYGON, owner=OWNER, key=OWNER_KEY, issued_at=None) -> dict:
+    issued_at = issued_at or now_iso()
+    sig = sign(key, auth.registration_message(name, owner, polygon, issued_at))
+    return {"name": name, "owner": owner, "polygon": polygon, "issuedAt": issued_at, "signature": sig}
+
+
+def review(project_id, decision="approve", loss=2.1, tco2e=450, note="", key=ADMIN_KEY, issued_at=None) -> dict:
+    issued_at = issued_at or now_iso()
+    sig = sign(key, auth.review_message(project_id, decision, loss, tco2e, note, issued_at))
+    return {
+        "decision": decision,
+        "regionalBaselineLossRatePct": loss,
+        "tco2ePerHa": tco2e,
+        "note": note,
+        "issuedAt": issued_at,
+        "signature": sig,
+    }
+
+
+def register(client, name="Test Forest", polygon=POLYGON, approve=True):
+    res = client.post("/api/projects", json=registration(name, polygon))
     assert res.status_code == 200, res.text
-    return res.json()
+    body = res.json()
+    if approve:
+        res = client.post(f"/api/projects/{body['projectId']}/review", json=review(body["projectId"]))
+        assert res.status_code == 200, res.text
+        body = {**body, **res.json()}
+    return body
 
 
-# -- projects -----------------------------------------------------------------
+# -- registration -------------------------------------------------------------
 
 
-def test_register_project_calls_oracle(client, oracle):
-    body = register(client)
-    assert body["projectId"] == 1
-    assert body["txHash"].startswith("0x")
-    assert oracle.calls == [("registerProject", 1, OWNER, "http://localhost:8000/api/projects/1")]
-    assert register(client, "Second")["projectId"] == 2
+def test_registration_is_pending_and_stays_off_chain(client, oracle):
+    body = register(client, approve=False)
+    assert body == {"projectId": 1, "status": "pending", "txHash": None, "onChainError": None}
+    assert oracle.calls == []
+    p = client.get("/api/projects/1").json()
+    assert p["status"] == "pending" and p["review"] is None and p["onChainRegistered"] is False
+    assert p["boundaryHash"] == auth.boundary_hash(POLYGON)
+
+
+def test_registration_needs_the_owner_signature(client):
+    other_wallet = registration(key=ADMIN_KEY)  # signed by someone other than the owner
+    res = client.post("/api/projects", json=other_wallet)
+    assert res.status_code == 403 and "does not match the owner" in res.json()["error"]
+
+    tampered = registration()
+    tampered["name"] = "Renamed after signing"
+    assert client.post("/api/projects", json=tampered).status_code == 403
+
+    moved = registration()
+    moved["polygon"] = shifted(0.5)  # boundary swapped after signing
+    assert client.post("/api/projects", json=moved).status_code == 403
+
+    stale = registration(issued_at=now_iso(-timedelta(minutes=30)))
+    res = client.post("/api/projects", json=stale)
+    assert res.status_code == 403 and "expired" in res.json()["error"]
+
+    garbage = {**registration(), "signature": "0x1234"}
+    assert client.post("/api/projects", json=garbage).status_code == 403
+    assert client.get("/api/projects").json() == []
+
+
+def test_overlapping_boundaries_are_rejected(client):
+    register(client)
+    res = client.post("/api/projects", json=registration("Copy", POLYGON))
+    assert res.status_code == 409 and "overlaps project #1" in res.json()["error"]
+
+    half_over = client.post("/api/projects", json=registration("Half", shifted(0.0145)))
+    assert half_over.status_code == 409
+
+    assert register(client, "Neighbour", shifted(0.03))["projectId"] == 2
+
+
+def test_rejected_projects_free_their_boundary(client):
+    register(client, approve=False)
+    assert client.post("/api/projects/1/review", json=review(1, "reject", note="no land title")).status_code == 200
+    assert register(client, "Rightful owner")["projectId"] == 2
+
+
+def test_register_validation_errors_are_400(client):
+    bad_owner = client.post("/api/projects", json={**registration(), "owner": "nope"})
+    assert bad_owner.status_code == 400 and "owner" in bad_owner.json()["error"]
+
+    bad_poly = client.post("/api/projects", json={**registration(), "polygon": {"type": "Point"}})
+    assert bad_poly.status_code == 400 and "Polygon" in bad_poly.json()["error"]
+
+    missing = client.post("/api/projects", json={"name": "x"})
+    assert missing.status_code == 400 and "error" in missing.json()
 
 
 def test_list_and_get_projects(client):
@@ -26,7 +123,7 @@ def test_list_and_get_projects(client):
     p = projects[0]
     assert p["projectId"] == 1 and p["owner"] == OWNER and p["onChainRegistered"] is True
     assert 1000 < p["areaHa"] < 1050 and p["latestReport"] is None
-    assert p["polygon"]["type"] == "Polygon"
+    assert p["polygon"]["type"] == "Polygon" and p["status"] == "active"
 
     detail = client.get("/api/projects/1").json()
     assert detail["reports"] == [] and detail["name"] == "Test Forest"
@@ -38,27 +135,63 @@ def test_get_unknown_project_is_404(client):
     assert res.json() == {"error": "project 99 not found"}
 
 
-def test_register_validation_errors_are_400(client):
-    bad_owner = client.post("/api/projects", json={"name": "x", "owner": "nope", "polygon": POLYGON})
-    assert bad_owner.status_code == 400 and "owner" in bad_owner.json()["error"]
-
-    bad_poly = client.post("/api/projects", json={"name": "x", "owner": OWNER, "polygon": {"type": "Point"}})
-    assert bad_poly.status_code == 400 and "Polygon" in bad_poly.json()["error"]
-
-    missing = client.post("/api/projects", json={"name": "x"})
-    assert missing.status_code == 400 and "error" in missing.json()
-
-
-def test_register_with_oracle_disabled_still_works(client, oracle):
-    oracle.disabled = "no contract address"
-    body = register(client)
-    assert body["txHash"] is None and body["onChainError"].startswith("oracle disabled")
-    assert client.get("/api/projects/1").json()["onChainRegistered"] is False
-
-
 def test_cors_allows_frontend(client):
     res = client.get("/api/projects", headers={"Origin": "http://localhost:3000"})
     assert res.headers["access-control-allow-origin"] == "http://localhost:3000"
+
+
+# -- review -------------------------------------------------------------------
+
+
+def test_approval_registers_on_chain_and_records_the_review(client, oracle):
+    register(client, approve=False)
+    res = client.post("/api/projects/1/review", json=review(1, note="title deed checked"))
+    assert res.status_code == 200, res.text
+    assert res.json()["status"] == "active" and res.json()["txHash"].startswith("0x")
+    assert oracle.calls == [("registerProject", 1, OWNER, "http://localhost:8000/api/projects/1")]
+
+    p = client.get("/api/projects/1").json()
+    assert p["status"] == "active" and p["onChainRegistered"] is True
+    assert p["review"]["reviewer"] == ADMIN and p["review"]["decision"] == "approve"
+    assert p["review"]["note"] == "title deed checked"
+
+
+def test_only_approvers_can_review(client, oracle):
+    register(client, approve=False)
+    res = client.post("/api/projects/1/review", json=review(1, key=OWNER_KEY))
+    assert res.status_code == 403 and "not an approver" in res.json()["error"]
+
+    forged = review(1)
+    forged["tco2ePerHa"] = 999  # parameters changed after the approver signed
+    assert client.post("/api/projects/1/review", json=forged).status_code == 403
+    assert client.get("/api/projects/1").json()["status"] == "pending" and oracle.calls == []
+
+
+def test_extra_approvers_from_env(client, monkeypatch):
+    monkeypatch.setenv("CANOPY_APPROVERS", OWNER)
+    register(client, approve=False)
+    assert client.post("/api/projects/1/review", json=review(1, key=OWNER_KEY)).status_code == 200
+    assert client.get(f"/api/approvers/{OWNER}").json()["isApprover"] is True
+
+
+def test_approvers_endpoint(client):
+    assert client.get(f"/api/approvers/{ADMIN}").json() == {"address": ADMIN, "isApprover": True}
+    assert client.get(f"/api/approvers/{OWNER}").json()["isApprover"] is False
+    assert client.get("/api/approvers/nope").json()["isApprover"] is False
+
+
+def test_a_project_is_reviewed_once(client):
+    register(client)
+    res = client.post("/api/projects/1/review", json=review(1, "reject"))
+    assert res.status_code == 409 and "already reviewed" in res.json()["error"]
+
+
+def test_review_parameters_are_bounded(client):
+    register(client, approve=False)
+    res = client.post("/api/projects/1/review", json=review(1, loss=50))
+    assert res.status_code == 400 and "regionalBaselineLossRatePct" in res.json()["error"]
+    assert client.post("/api/projects/1/review", json=review(1, tco2e=5000)).status_code == 400
+    assert client.post("/api/projects/1/review", json=review(1, "maybe")).status_code == 400
 
 
 # -- verify -------------------------------------------------------------------
@@ -98,9 +231,22 @@ def test_verify_builds_report_and_mints(client, oracle, fake_satellite):
     assert [x["reportId"] for x in project["reports"]] == [r["reportId"]]
 
 
-def test_verify_options_override_methodology_inputs(client):
-    register(client)
-    r = client.post("/api/projects/1/verify", json={"regionalBaselineLossRatePct": 1.0, "tco2ePerHa": 300}).json()
+def test_pending_and_rejected_projects_cannot_be_verified(client, oracle):
+    register(client, approve=False)
+    res = client.post("/api/projects/1/verify")
+    assert res.status_code == 403 and "pending review" in res.json()["error"]
+
+    client.post("/api/projects/1/review", json=review(1, "reject"))
+    assert client.post("/api/projects/1/verify").status_code == 403
+    assert client.post("/api/projects/1/monitor").status_code == 403
+    assert oracle.calls == []
+
+
+def test_methodology_inputs_come_from_the_review_not_the_caller(client):
+    register(client, approve=False)
+    client.post("/api/projects/1/review", json=review(1, loss=1.0, tco2e=300))
+    # A caller trying to inflate credits through the request body is ignored.
+    r = client.post("/api/projects/1/verify", json={"regionalBaselineLossRatePct": 100, "tco2ePerHa": 2000}).json()
     assert r["regionalBaselineLossRatePct"] == 1.0 and r["tco2ePerHa"] == 300
     assert r["creditsEstimated"] == round((10 - 3.3) * 300)
 
@@ -113,7 +259,7 @@ def test_verify_twice_is_409(client):
     assert res.json() == {"error": "project 1 vintage 2026 is already verified"}
 
 
-def test_verify_registers_on_chain_if_needed(client, oracle):
+def test_verify_registers_on_chain_if_approval_could_not(client, oracle):
     oracle.disabled = "no key"
     register(client)
     oracle.disabled = None
@@ -179,6 +325,17 @@ def test_monitor_without_change_is_verified(client, oracle):
     assert not any(c[0] == "flagReversal" for c in oracle.calls)
 
 
+def test_monitor_is_rate_limited_per_project(client):
+    register(client)
+    register(client, "Neighbour", shifted(0.03))
+    client.post("/api/projects/1/verify")
+    client.post("/api/projects/2/verify")
+    assert client.post("/api/projects/1/monitor").status_code == 200
+    res = client.post("/api/projects/1/monitor")
+    assert res.status_code == 429 and "try again" in res.json()["error"]
+    assert client.post("/api/projects/2/monitor").status_code == 200
+
+
 def test_monitor_simulated_deforestation_flags_reversal(client, oracle, fake_satellite):
     register(client)
     verified = client.post("/api/projects/1/verify").json()
@@ -201,6 +358,15 @@ def test_monitor_simulated_deforestation_flags_reversal(client, oracle, fake_sat
     assert len(project["reports"]) == 2
 
 
+def test_demo_controls_can_be_switched_off(client, monkeypatch):
+    monkeypatch.setenv("CANOPY_DEMO_CONTROLS", "0")
+    register(client)
+    client.post("/api/projects/1/verify")
+    res = client.post("/api/projects/1/monitor?simulateDeforestation=true")
+    assert res.status_code == 403 and "demo controls" in res.json()["error"]
+    assert client.get("/api/health").json()["demoControls"] is False
+
+
 def test_monitor_reversal_with_off_chain_vintage_reports_error(client, oracle):
     oracle.disabled = "no key"
     register(client)
@@ -218,3 +384,16 @@ def test_unknown_report_and_preview_are_404(client):
     assert client.get("/api/reports/rep_nope").status_code == 404
     assert client.get("/api/reports/rep_nope/baseline.png").status_code == 404
     assert client.get("/api/reports/..%2Fprojects/baseline.png").status_code == 404
+
+
+def test_unexpected_errors_keep_cors_headers(client, monkeypatch):
+    from app import service
+
+    def boom(*a, **k):
+        raise FileNotFoundError("disk full")
+
+    monkeypatch.setattr(service.analysis, "analyze", boom)
+    register(client)
+    res = client.post("/api/projects/1/verify", headers={"Origin": "http://localhost:3000"})
+    assert res.status_code == 500 and res.json() == {"error": "internal error: FileNotFoundError"}
+    assert res.headers["access-control-allow-origin"] == "http://localhost:3000"

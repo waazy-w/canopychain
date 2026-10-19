@@ -17,7 +17,9 @@ async function main() {
   const { chainId } = await ethers.provider.getNetwork();
   const isAmoy = chainId === AMOY_CHAIN_ID;
 
-  const oracle = process.env.ORACLE_ADDRESS || (isAmoy ? undefined : fallbackOracle?.address);
+  // ORACLE_ADDRESS in contracts/.env is the Amoy oracle; local chains always use Hardhat account #1,
+  // whose key the local backend runs with (see frontend/README.md).
+  const oracle = isAmoy ? process.env.ORACLE_ADDRESS : fallbackOracle?.address;
   if (!oracle || !ethers.isAddress(oracle)) {
     throw new Error("Set ORACLE_ADDRESS in contracts/.env to the oracle wallet address.");
   }

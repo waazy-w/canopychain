@@ -6,7 +6,11 @@ from fastapi.testclient import TestClient
 from app import analysis, service
 from app.oracle import TxResult
 
+# Hardhat's public test accounts (never real keys): #1 owns projects, #0 is the contract admin / approver.
 OWNER = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+OWNER_KEY = "0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d"
+ADMIN = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+ADMIN_KEY = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
 POLYGON = {
     "type": "Polygon",
     "coordinates": [
@@ -73,6 +77,9 @@ class FakeOracle:
     def flag_reversal(self, pid, vintage, lost, report_hash):
         return self._tx("flagReversal", pid, vintage, lost, report_hash)
 
+    def is_admin(self, address):
+        return address == ADMIN
+
 
 @pytest.fixture
 def data_dir(tmp_path, monkeypatch):
@@ -85,6 +92,7 @@ def oracle(monkeypatch):
     fake = FakeOracle()
     monkeypatch.setattr(service, "get_oracle", lambda: fake)
     monkeypatch.setattr("app.main.get_oracle", lambda: fake)
+    monkeypatch.setattr("app.oracle.get_oracle", lambda: fake)  # auth.is_approver imports it lazily
     return fake
 
 
@@ -108,7 +116,9 @@ def fake_satellite(monkeypatch):
 
 
 @pytest.fixture
-def client(data_dir, oracle, fake_satellite):
+def client(data_dir, oracle, fake_satellite, monkeypatch):
     from app.main import app
+
+    monkeypatch.setattr(service, "_last_monitor", {})
 
     return TestClient(app)

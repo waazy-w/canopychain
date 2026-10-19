@@ -1,4 +1,4 @@
-"""Registers the demo forests as projects.
+"""Registers the demo forests as projects (pending review: approve them on the project page).
 
     python -m app.seed_demo                 # register demo projects (skips ones that exist)
     python -m app.seed_demo --build-cache   # also (re)build backend/demo_cache for this month
@@ -40,8 +40,8 @@ def seed(owner: str) -> None:
         if forest["name"] in existing:
             print(f"exists: {forest['name']}")
             continue
-        res = service.create_project(forest["name"], owner, forest["polygon"])
-        print(f"registered project {res['projectId']}: {forest['name']} (tx {res['txHash'] or res['onChainError']})")
+        res = service.seed_project(forest["name"], owner, forest["polygon"])
+        print(f"registered project {res['projectId']}: {forest['name']} (pending review)")
 
 
 def main() -> None:

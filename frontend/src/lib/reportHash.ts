@@ -7,7 +7,7 @@ import { keccak256, toBytes } from "viem";
 /** Fields the backend adds after hashing (transaction results), plus the hash itself. */
 export const UNHASHED_FIELDS = ["reportHash", "txHash", "onChainError", "lostCredits"] as const;
 
-function sortKeys(value: unknown): unknown {
+export function sortKeys(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(sortKeys);
   if (value !== null && typeof value === "object") {
     return Object.fromEntries(

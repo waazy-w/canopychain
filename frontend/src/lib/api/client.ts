@@ -8,6 +8,8 @@ import type {
   ProjectSummary,
   RegisterRequest,
   RegisterResponse,
+  ReviewRequest,
+  ReviewResponse,
   VerificationReport,
   VerifyResponse,
 } from "./types";
@@ -59,6 +61,10 @@ export const api = {
   listProjects: () => request<ProjectSummary[]>("GET", "/api/projects"),
   getProject: (id: number) => request<ProjectDetail>("GET", `/api/projects/${id}`),
   registerProject: (body: RegisterRequest) => request<RegisterResponse>("POST", "/api/projects", body),
+  reviewProject: (id: number, body: ReviewRequest) =>
+    request<ReviewResponse>("POST", `/api/projects/${id}/review`, body),
+  isApprover: (address: string) =>
+    request<{ address: string; isApprover: boolean }>("GET", `/api/approvers/${address}`),
   verify: (id: number) => request<VerifyResponse>("POST", `/api/projects/${id}/verify`),
   monitor: (id: number, simulateDeforestation: boolean) =>
     request<MonitorResponse>(

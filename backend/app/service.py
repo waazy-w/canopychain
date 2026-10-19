@@ -1,12 +1,14 @@
 """Project registration, verification and monitoring: satellite analysis → report → oracle."""
 
 import secrets
+import threading
+import time
 from datetime import date, datetime, timezone
 
 from shapely.geometry import shape
 from web3 import Web3
 
-from . import analysis, config, storage
+from . import analysis, auth, config, storage
 from .geo import area_ha, parse_polygon, to_geojson
 from .methodology import (
     DEFAULT_REGIONAL_LOSS_RATE_PCT,
@@ -32,6 +34,22 @@ class BadRequest(Exception):
 
 class Conflict(Exception):
     pass
+
+
+class Forbidden(Exception):
+    pass
+
+
+class TooManyRequests(Exception):
+    pass
+
+
+# Share of the smaller polygon two projects may overlap before the second is rejected (allows shared edges
+# and digitising slop, not double-claimed forest).
+MAX_OVERLAP_FRACTION = 0.01
+MONITOR_COOLDOWN_S = 30
+# Statuses after review. "pending" projects stay off-chain until an approver signs off.
+APPROVED_STATUSES = ("active", "reversed")
 
 
 def today() -> date:
@@ -64,7 +82,25 @@ def _report_uri(report_id: str) -> str:
 # ---------------------------------------------------------------------------
 
 
-def create_project(name: str, owner: str, polygon: dict) -> dict:
+def _check_overlap(poly) -> None:
+    """One piece of forest, one project: refuse boundaries that overlap a project that wasn't rejected."""
+    for other in storage.list_projects():
+        if other.get("status") == "rejected":
+            continue
+        other_poly = shape(other["polygon"])
+        if not poly.intersects(other_poly):
+            continue
+        shared = poly.intersection(other_poly).area / min(poly.area, other_poly.area)
+        if shared > MAX_OVERLAP_FRACTION:
+            raise Conflict(
+                f"this boundary overlaps project #{other['projectId']} ({other['name']}) by {shared:.0%}; "
+                "a forest can only be registered once"
+            )
+
+
+def create_project(name: str, owner: str, polygon: dict, issued_at: str, signature: str) -> dict:
+    """Registers a project as "pending". The owner wallet must sign the registration; nothing goes
+    on-chain until an approver reviews it (review_project)."""
     name = (name or "").strip()
     if not name:
         raise BadRequest("name is required")
@@ -74,24 +110,121 @@ def create_project(name: str, owner: str, polygon: dict) -> dict:
         poly = parse_polygon(polygon)
     except ValueError as exc:
         raise BadRequest(str(exc)) from exc
+    try:
+        auth.check_fresh(issued_at)
+        auth.require_signer(auth.registration_message(name, owner, polygon, issued_at), signature, owner)
+    except auth.SignatureError as exc:
+        raise Forbidden(str(exc)) from exc
+    return _store_pending(name, owner, polygon, poly, signature)
 
+
+def seed_project(name: str, owner: str, polygon: dict) -> dict:
+    """Operator-side registration for the demo seed script (no wallet signature). Still pending review."""
+    try:
+        poly = parse_polygon(polygon)
+    except ValueError as exc:
+        raise BadRequest(str(exc)) from exc
+    return _store_pending(name, owner, polygon, poly, None)
+
+
+def _store_pending(name: str, owner: str, polygon: dict, poly, signature: str | None) -> dict:
+    _check_overlap(poly)
     project = storage.create_project(
         {
             "name": name,
             "owner": Web3.to_checksum_address(owner),
             "polygon": to_geojson(poly),
             "areaHa": round(area_ha(poly), 2),
+            "boundaryHash": auth.boundary_hash(polygon),
+            "ownerSignature": signature,
             "createdAt": _now_iso(),
-            "status": "active",
+            "status": "pending",
+            "review": None,
             "onChainRegistered": False,
             "registerTxHash": None,
         }
     )
-    pid = project["projectId"]
-    res = get_oracle().register_project(pid, project["owner"], _metadata_uri(pid))
+    return {"projectId": project["projectId"], "status": "pending", "txHash": None, "onChainError": None}
+
+
+def review_project(
+    project_id: int,
+    decision: str,
+    loss_rate_pct: float,
+    tco2e_per_ha: float,
+    note: str,
+    issued_at: str,
+    signature: str,
+) -> dict:
+    """An approver (the contract admin) approves or rejects a pending project and fixes its methodology
+    parameters. Approval registers the project on-chain; only approved projects can be verified."""
+    project, _ = _load_project(project_id)
+    if project.get("status") != "pending":
+        raise Conflict(f"project {project_id} was already reviewed ({project.get('status')})")
+    if decision not in ("approve", "reject"):
+        raise BadRequest('decision must be "approve" or "reject"')
+    loss_rate_pct, tco2e_per_ha, note = round(loss_rate_pct, 2), round(tco2e_per_ha, 2), (note or "").strip()
+    try:
+        auth.check_fresh(issued_at)
+        reviewer = auth.recover_signer(
+            auth.review_message(project_id, decision, loss_rate_pct, tco2e_per_ha, note, issued_at), signature
+        )
+    except auth.SignatureError as exc:
+        raise Forbidden(str(exc)) from exc
+    if not auth.is_approver(reviewer):
+        raise Forbidden(f"{reviewer} is not an approver (the CanopyCredits admin)")
+
+    review = {
+        "decision": decision,
+        "reviewer": reviewer,
+        "reviewedAt": _now_iso(),
+        "regionalBaselineLossRatePct": loss_rate_pct,
+        "tco2ePerHa": tco2e_per_ha,
+        "note": note,
+        "signature": signature,
+    }
+    if decision == "reject":
+        storage.update_project(project_id, status="rejected", review=review)
+        return {"projectId": project_id, "status": "rejected", "txHash": None, "onChainError": None}
+
+    storage.update_project(project_id, status="active", review=review)
+    res = get_oracle().register_project(project_id, project["owner"], _metadata_uri(project_id))
     if res.ok:
-        project = storage.update_project(pid, onChainRegistered=True, registerTxHash=res.tx_hash)
-    return {"projectId": pid, "txHash": res.tx_hash, "onChainError": res.error}
+        storage.update_project(project_id, onChainRegistered=True, registerTxHash=res.tx_hash)
+    return {"projectId": project_id, "status": "active", "txHash": res.tx_hash, "onChainError": res.error}
+
+
+def _require_approved(project: dict) -> None:
+    status = project.get("status", "active")
+    if status == "pending":
+        raise Forbidden(f"project {project['projectId']} is pending review: an approver must approve it first")
+    if status not in APPROVED_STATUSES:
+        raise Forbidden(f"project {project['projectId']} was {status} and can't be verified or monitored")
+
+
+def _methodology_params(project: dict) -> tuple[float, float]:
+    """Parameters the approver fixed at review; projects approved before reviews existed use the defaults."""
+    review = project.get("review") or {}
+    return (
+        review.get("regionalBaselineLossRatePct", DEFAULT_REGIONAL_LOSS_RATE_PCT),
+        review.get("tco2ePerHa", DEFAULT_TCO2E_PER_HA),
+    )
+
+
+_last_monitor: dict[int, float] = {}
+_monitor_lock = threading.Lock()
+
+
+def _monitor_cooldown(project_id: int) -> None:
+    """Re-checks can send an on-chain transaction, so each project gets one every MONITOR_COOLDOWN_S."""
+    with _monitor_lock:
+        now = time.monotonic()
+        last = _last_monitor.get(project_id)
+        if last is not None and now - last < MONITOR_COOLDOWN_S:
+            raise TooManyRequests(
+                f"project {project_id} was re-checked moments ago; try again in {MONITOR_COOLDOWN_S - (now - last):.0f} s"
+            )
+        _last_monitor[project_id] = now
 
 
 def _summary(report: dict | None) -> dict | None:
@@ -174,8 +307,10 @@ def _load_project(project_id: int) -> tuple[dict, object]:
     return project, shape(project["polygon"])
 
 
-def verify(project_id: int, loss_rate_pct: float | None = None, tco2e_per_ha: float | None = None) -> dict:
+def verify(project_id: int) -> dict:
     project, poly = _load_project(project_id)
+    _require_approved(project)
+    loss_rate_pct, tco2e_per_ha = _methodology_params(project)
     baseline_t, current_t = target_dates()
     vintage = current_t.year
     oracle = get_oracle()
@@ -190,14 +325,7 @@ def verify(project_id: int, loss_rate_pct: float | None = None, tco2e_per_ha: fl
         raise Conflict(f"project {project_id} vintage {vintage} is already verified")
 
     a, baseline_png, current_png = analysis.analyze(poly, baseline_t, current_t, simulate=False)
-    report = _build_report(
-        project,
-        a,
-        "verification",
-        vintage,
-        DEFAULT_REGIONAL_LOSS_RATE_PCT if loss_rate_pct is None else loss_rate_pct,
-        DEFAULT_TCO2E_PER_HA if tco2e_per_ha is None else tco2e_per_ha,
-    )
+    report = _build_report(project, a, "verification", vintage, loss_rate_pct, tco2e_per_ha)
     report["reportHash"] = report_hash(report)
     report["txHash"], report["onChainError"] = None, None
     storage.save_report(report, baseline_png, current_png)
@@ -223,6 +351,9 @@ def verify(project_id: int, loss_rate_pct: float | None = None, tco2e_per_ha: fl
 
 def monitor(project_id: int, simulate_deforestation: bool = False) -> dict:
     project, poly = _load_project(project_id)
+    _require_approved(project)
+    if simulate_deforestation and not config.demo_controls_enabled():
+        raise Forbidden("demo controls are switched off on this server (CANOPY_DEMO_CONTROLS=0)")
     verified = [
         r
         for r in storage.reports_for_project(project_id)
@@ -230,6 +361,7 @@ def monitor(project_id: int, simulate_deforestation: bool = False) -> dict:
     ]
     if not verified:
         raise BadRequest(f"project {project_id} has no verification yet; run /verify first")
+    _monitor_cooldown(project_id)
     # Prefer the latest vintage that was actually minted on-chain.
     ref = next((r for r in verified if r.get("txHash")), verified[0])
 

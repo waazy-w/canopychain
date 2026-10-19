@@ -8,6 +8,7 @@ import { ProjectMap } from "@/components/maps";
 import { OnChainPanel } from "@/components/project/OnChainPanel";
 import { ReportStatusBadge, ReportView } from "@/components/project/ReportView";
 import { RetirePanel } from "@/components/project/RetirePanel";
+import { ReviewPanel } from "@/components/project/ReviewPanel";
 import { VerifyActions } from "@/components/project/VerifyActions";
 import { AddressLink, Badge, Card, ErrorBox, Notice, Spinner } from "@/components/ui";
 import { ApiError } from "@/lib/api/errors";
@@ -51,6 +52,8 @@ export default function ProjectPage() {
   }
 
   const report = project.reports.find((r) => r.reportId === selectedReportId) ?? project.reports[0];
+  const lifecycle = project.status ?? "active";
+  const approved = lifecycle === "active" || lifecycle === "reversed";
   const reversed =
     onChainProject.data?.status === ProjectStatus.Reversed || project.latestReport?.status === "reversal_detected";
 
@@ -78,7 +81,17 @@ export default function ProjectPage() {
           </p>
           <h1 className="mt-1 flex flex-wrap items-center gap-2 text-2xl font-bold text-ink">
             {project.name}
-            {reversed ? <Badge tone="red">Reversal flagged</Badge> : report ? <ReportStatusBadge status={report.status} /> : <Badge tone="gray">Not verified</Badge>}
+            {lifecycle === "pending" ? (
+              <Badge tone="amber">Pending review</Badge>
+            ) : lifecycle === "rejected" ? (
+              <Badge tone="red">Rejected</Badge>
+            ) : reversed ? (
+              <Badge tone="red">Reversal flagged</Badge>
+            ) : report ? (
+              <ReportStatusBadge status={report.status} />
+            ) : (
+              <Badge tone="gray">Not verified</Badge>
+            )}
           </h1>
           <p className="mt-1 text-sm text-muted">
             {fmtHa(project.areaHa)} · owner <AddressLink address={project.owner} /> · registered {fmtDate(project.createdAt)}
@@ -93,11 +106,15 @@ export default function ProjectPage() {
         <OnChainPanel project={onChainProject} rows={vintagesOnChain.rows} loadingRows={vintagesOnChain.isLoading} />
       </div>
 
-      <VerifyActions
-        projectId={project.projectId}
-        hasVerifiedReport={project.reports.some((r) => r.status === "verified")}
-        verifyBlockedReason={verifyBlockedReason}
-      />
+      <ReviewPanel project={project} />
+
+      {approved && (
+        <VerifyActions
+          projectId={project.projectId}
+          hasVerifiedReport={project.reports.some((r) => r.status === "verified")}
+          verifyBlockedReason={verifyBlockedReason}
+        />
+      )}
 
       {report ? (
         <div className="grid gap-6 lg:grid-cols-[1fr_380px]">
@@ -130,7 +147,11 @@ export default function ProjectPage() {
           </div>
         </div>
       ) : (
-        <Notice>No verification reports yet. Run a verification to measure the forest and estimate credits.</Notice>
+        <Notice>
+          {approved
+            ? "No verification reports yet. Run a verification to measure the forest and estimate credits."
+            : "Verification opens once an approver has approved this project."}
+        </Notice>
       )}
     </div>
   );

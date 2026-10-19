@@ -100,6 +100,16 @@ class Oracle:
 
     # -- reads ----------------------------------------------------------------
 
+    def is_admin(self, address: str) -> bool:
+        """True if `address` holds DEFAULT_ADMIN_ROLE on CanopyCredits. Read-only, needs no oracle key."""
+        if not self.address or not self.abi:
+            return False
+        try:
+            return bool(self.contract.functions.hasRole(b"\x00" * 32, Web3.to_checksum_address(address)).call())
+        except Exception as exc:
+            log.warning("hasRole(admin, %s) failed: %s", address, exc)
+            return False
+
     def is_registered(self, project_id: int) -> bool:
         try:
             self.contract.functions.getProject(project_id).call()

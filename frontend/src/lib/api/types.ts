@@ -65,6 +65,19 @@ export interface ReportSummary {
   createdAt: string;
 }
 
+/** pending → (approver review) → active | rejected; active → reversed when forest loss is flagged. */
+export type ProjectLifecycle = "pending" | "rejected" | "active" | "reversed";
+
+export interface ProjectReview {
+  decision: "approve" | "reject";
+  reviewer: string;
+  reviewedAt: string;
+  regionalBaselineLossRatePct: number;
+  tco2ePerHa: number;
+  note: string;
+  signature: string;
+}
+
 export interface ProjectSummary {
   projectId: number;
   name: string;
@@ -72,6 +85,11 @@ export interface ProjectSummary {
   polygon: GeoJSONPolygon;
   areaHa: number;
   createdAt: string;
+  /** Absent on projects created before reviews existed; treat as "active". */
+  status?: ProjectLifecycle;
+  review?: ProjectReview | null;
+  boundaryHash?: string;
+  ownerSignature?: string | null;
   onChainRegistered: boolean;
   latestReport: ReportSummary | null;
 }
@@ -84,9 +102,28 @@ export interface RegisterRequest {
   name: string;
   owner: string;
   polygon: GeoJSONPolygon;
+  /** The owner's personal_sign over registrationMessage() (lib/auth.ts). */
+  issuedAt: string;
+  signature: string;
 }
 
 export interface RegisterResponse {
   projectId: number;
+  status: ProjectLifecycle;
   txHash: string | null;
+}
+
+export interface ReviewRequest {
+  decision: "approve" | "reject";
+  regionalBaselineLossRatePct: number;
+  tco2ePerHa: number;
+  note: string;
+  /** An approver's personal_sign over reviewMessage() (lib/auth.ts). */
+  issuedAt: string;
+  signature: string;
+}
+
+export interface ReviewResponse extends OnChainResult {
+  projectId: number;
+  status: ProjectLifecycle;
 }

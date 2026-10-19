@@ -36,4 +36,17 @@ def oracle_private_key() -> str | None:
     return os.environ.get("ORACLE_PRIVATE_KEY") or None
 
 
-CORS_ORIGINS = ["http://localhost:3000"]
+def approver_addresses() -> set[str]:
+    """Extra project approvers (comma-separated addresses) on top of the contract admin, e.g. for local testing."""
+    from web3 import Web3
+
+    raw = os.environ.get("CANOPY_APPROVERS", "")
+    return {Web3.to_checksum_address(a.strip()) for a in raw.split(",") if Web3.is_address(a.strip())}
+
+
+def demo_controls_enabled() -> bool:
+    """"Simulate deforestation" is a demo control; set CANOPY_DEMO_CONTROLS=0 to switch it off."""
+    return os.environ.get("CANOPY_DEMO_CONTROLS", "1") not in ("0", "false", "no")
+
+
+CORS_ORIGINS = [o.strip() for o in os.environ.get("CANOPY_CORS_ORIGINS", "http://localhost:3000").split(",") if o.strip()]

@@ -86,7 +86,20 @@ try {
   const connected = await page.getByText(/0x3C/i).first().isVisible().catch(() => false);
   note(`wallet connected: ${connected}`);
 
-  // 2. Register: zoom in on the Amazon and draw a rectangle
+  // 2. Register: zoom in on the Amazon and draw a rectangle. The wallet signs the registration.
+  const drawRectangle = async () => {
+    await page.goto(BASE + "/register");
+    await page.waitForSelector(".leaflet-container");
+    for (let i = 0; i < 8; i++) {
+      await page.click(".leaflet-control-zoom-in");
+      await page.waitForTimeout(350);
+    }
+    await page.waitForTimeout(1500);
+    await page.click(".leaflet-pm-icon-rectangle");
+    const b = await page.locator(".leaflet-container").boundingBox();
+    await page.mouse.click(b.x + b.width / 2 - 80, b.y + b.height / 2 - 80);
+    await page.mouse.click(b.x + b.width / 2 + 80, b.y + b.height / 2 + 80);
+  };
   await page.goto(BASE + "/register");
   await page.waitForSelector(".leaflet-container");
   for (let i = 0; i < 8; i++) {
@@ -102,11 +115,11 @@ try {
   await page.mouse.click(cx + 80, cy + 80);
   await page.getByPlaceholder(/Mata Atl/).fill("E2E Amazon Block");
   await page.waitForTimeout(500);
-  const ownerValue = await page.getByPlaceholder(/defaults to your connected wallet/).inputValue();
+  const ownerValue = await page.getByTitle(new RegExp(ACCOUNT, "i")).first().innerText();
   const areaText = await page.getByText(/Area:/).locator("..").innerText();
   note(`register form: owner="${ownerValue}" ${areaText.replace(/\s+/g, " ")}`);
   await shot("02-register");
-  await page.getByRole("button", { name: "Register project" }).click();
+  await page.getByRole("button", { name: "Sign & register" }).click();
   await page.waitForURL(/\/projects\/\d+/, { timeout: 30_000 });
   const projectUrl = page.url();
   note(`registered → ${projectUrl}`);
@@ -115,6 +128,27 @@ try {
   const storedHa = (await page.getByText(/ ha · owner/).first().innerText()).match(/([\d,.]+) ha/)?.[1];
   note(`area: form ${formHa} ha, backend ${storedHa} ha`);
   if (!formHa || formHa !== storedHa) throw new Error(`area mismatch: form ${formHa} vs backend ${storedHa}`);
+
+  // 2b. The same forest can't be claimed twice.
+  await drawRectangle();
+  await page.getByPlaceholder(/Mata Atl/).fill("E2E duplicate claim");
+  await page.getByRole("button", { name: "Sign & register" }).click();
+  const dup = page.getByText(/overlaps project #\d+/);
+  await dup.first().waitFor({ timeout: 30_000 });
+  note(`duplicate refused: ${(await dup.first().innerText()).slice(0, 90)}`);
+  await shot("02b-duplicate-refused");
+
+  // 2c. Pending until an approver signs the review (the e2e wallet is a CANOPY_APPROVERS approver).
+  await page.goto(projectUrl);
+  await page.getByText("Pending review").first().waitFor({ timeout: 30_000 });
+  if (await page.getByRole("button", { name: "Run verification" }).isVisible().catch(() => false)) {
+    throw new Error("Run verification is offered before approval");
+  }
+  await shot("02c-pending");
+  await page.getByPlaceholder("e.g. title deed checked").fill("E2E: land title checked");
+  await page.getByRole("button", { name: "Sign & approve" }).click();
+  await page.getByText("Approved", { exact: true }).first().waitFor({ timeout: 60_000 });
+  note(`approved: ${await page.getByText(/Approved by/).first().locator("..").innerText()}`.replace(/\s+/g, " "));
 
   // 3. Run verification (live Planetary Computer fetch)
   const t0 = Date.now();
@@ -169,6 +203,9 @@ try {
   note(`FAILED at ${page.url()}: ${err.message.split("\n")[0]}`);
   await shot("99-failure");
 } finally {
+  // Step 2b's duplicate registration is refused with a 409 on purpose; the browser logs it as an error.
+  const expected = (e) => e.includes("/register]") && e.includes("status of 409");
+  consoleErrors.splice(0, consoleErrors.length, ...consoleErrors.filter((e) => !expected(e)));
   note(`console errors: ${consoleErrors.length}`);
   if (log.some((l) => l.startsWith("FAILED")) || consoleErrors.length) process.exitCode = 1;
   for (const e of consoleErrors.slice(0, 30)) note(`  ${e.slice(0, 300)}`);

@@ -62,7 +62,15 @@ export default function RegistryPage() {
                       <AddressLink address={p.owner} />
                     </td>
                     <td className="py-2 pr-3">
-                      {p.latestReport ? <ReportStatusBadge status={p.latestReport.status} /> : <Badge tone="gray">Not verified</Badge>}
+                      {p.status === "pending" ? (
+                        <Badge tone="amber">Pending review</Badge>
+                      ) : p.status === "rejected" ? (
+                        <Badge tone="red">Rejected</Badge>
+                      ) : p.latestReport ? (
+                        <ReportStatusBadge status={p.latestReport.status} />
+                      ) : (
+                        <Badge tone="gray">Not verified</Badge>
+                      )}
                     </td>
                     <td className="py-2">{/* Monitoring reports carry no credit estimate; the badge already shows the reversal. */}
                       {p.latestReport && p.latestReport.kind !== "monitoring" && p.latestReport.status !== "reversal_detected"
