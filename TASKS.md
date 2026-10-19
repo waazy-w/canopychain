@@ -10,9 +10,9 @@ Format: `- [ ] Task (owner) — branch`. Tick tasks off when they're merged.
 
 ## Teammate A (saaz): `contracts/` + `frontend/`
 **Contracts**
-- [ ] Scaffold Hardhat (TS) + OpenZeppelin in `contracts/` (A) — feat/contracts-scaffold
-- [ ] `CanopyCredits.sol`: registerProject, submitVerification (90/10 buffer, no double verification), retire, flagReversal, views, events (A) — feat/canopy-credits
-- [ ] Tests: happy paths, access control, double verification, retiring more than the balance, reversal larger than the buffer (A)
+- [x] Scaffold Hardhat (TS) + OpenZeppelin in `contracts/` (A) — feat/contracts-scaffold
+- [x] `CanopyCredits.sol`: registerProject, submitVerification (90/10 buffer, no double verification), retire, flagReversal, views, events (A) — feat/canopy-credits
+- [x] Tests: happy paths, access control, double verification, retiring more than the balance, reversal larger than the buffer (A)
 - [ ] Deploy script for Amoy. Write the ABI and address to `shared/contracts.json`. Verify on Polygonscan. (A) — **by Oct 20 evening, so B can integrate**
 **Frontend**
 - [ ] Scaffold Next.js + Tailwind + wagmi/RainbowKit (Amoy) (A) — feat/frontend-scaffold
