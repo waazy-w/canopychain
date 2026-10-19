@@ -29,6 +29,9 @@ Without `.env` the API runs fully off-chain: reports are produced and stored, an
 | `PUBLIC_BASE_URL` | no | Base URL used in on-chain `metadataURI` / `reportURI`. Default `http://localhost:8000`. |
 | `CONTRACTS_JSON` | no | Path to the deployment file. Default `../shared/contracts.json` (written by `npm run deploy:amoy` in `contracts/`). |
 | `CANOPY_DATA_DIR` | no | Storage directory. Default `backend/data/`. |
+| `CANOPY_APPROVERS` | no | Comma-separated wallets allowed to approve projects, on top of the CanopyCredits admin (read on-chain). Handy for local testing. |
+| `CANOPY_DEMO_CONTROLS` | no | `0` switches off "Simulate deforestation". Default on, for the demo. |
+| `CANOPY_CORS_ORIGINS` | no | Comma-separated frontend origins. Default `http://localhost:3000`. |
 
 The contract address and ABI are re-read on every request, so a new deploy is picked up without restarting.
 

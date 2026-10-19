@@ -16,13 +16,14 @@ Forest carbon credits are meant to pay for forests that stay standing. In practi
 
 CanopyChain links every credit to open satellite evidence and a public, permanent on-chain record.
 
-1. **Register.** A project owner draws the forest boundary on a map. The polygon is stored with the project.
-2. **Verify by satellite.** The verification engine pulls Sentinel-2 imagery (10 m resolution, free and open, via Microsoft Planetary Computer). It masks clouds, computes NDVI, and measures forest cover now and one year earlier.
-3. **Estimate.** Avoided loss = how much forest the region would have lost at its baseline rate, minus what this forest actually lost. Credits = avoided loss × carbon per hectare. This is a **prototype estimate, not a certified methodology**.
-4. **Issue on-chain.** The full report is hashed (keccak256). An oracle submits the hash and the credit amount to the `CanopyCredits` contract (ERC-1155, one token per project and vintage). 90% goes to the project owner and 10% is locked in a buffer pool that no one can move.
-5. **Retire.** Buyers retire credits from their wallet. Retiring burns the tokens and writes a permanent certificate on-chain, so the same credit can't be claimed twice.
-6. **Monitor.** The forest is re-checked. If it has been cleared, the oracle flags a **reversal** on-chain: buffer credits are burned, the project is marked as reversed, and no new credits can be issued for it.
-7. **Audit.** A public registry lists every project, its satellite evidence, and every issuance, retirement and reversal event. Anyone can re-hash a report and compare it with the on-chain hash.
+1. **Register.** A project owner draws the forest boundary on a map and signs the registration with their wallet. Boundaries that overlap an existing project are refused, so a forest can only be claimed once.
+2. **Approve.** An approver (the contract admin) checks the land documents and signs off, fixing the methodology inputs. Only then is the project registered on-chain, and nobody can change those inputs later.
+3. **Verify by satellite.** The verification engine pulls Sentinel-2 imagery (10 m resolution, free and open, via Microsoft Planetary Computer). It masks clouds, computes NDVI, and measures forest cover now and one year earlier.
+4. **Estimate.** Avoided loss = how much forest the region would have lost at its baseline rate, minus what this forest actually lost. Credits = avoided loss × carbon per hectare. This is a **prototype estimate, not a certified methodology**.
+5. **Issue on-chain.** The full report is hashed (keccak256). An oracle submits the hash and the credit amount to the `CanopyCredits` contract (ERC-1155, one token per project and vintage). 90% goes to the project owner and 10% is locked in a buffer pool that no one can move.
+6. **Retire.** Buyers retire credits from their wallet. Retiring burns the tokens and writes a permanent certificate on-chain, so the same credit can't be claimed twice.
+7. **Monitor.** The forest is re-checked. If it has been cleared, the oracle flags a **reversal** on-chain: buffer credits are burned, the project is marked as reversed, and no new credits can be issued for it.
+8. **Audit.** A public registry lists every project, its satellite evidence, and every issuance, retirement and reversal event. Anyone can re-hash a report and compare it with the on-chain hash.
 
 ## What makes it different
 

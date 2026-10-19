@@ -46,7 +46,7 @@ The backend produces this report. Its keccak256 hash goes on-chain.
 
 - `date` is the acquisition date of the main Sentinel-2 scene. `targetDate` is what was asked for: the 1st of the current month for `current`, one year earlier for `baseline`. Vintage = year of `current.targetDate`.
 - `validCoveragePct`: share of the polygon with a cloud-free observation (several scenes are mosaicked, least cloudy first).
-- `previewBounds` is `[[south, west], [north, east]]` in WGS84, ready for a Leaflet `imageOverlay`. Preview PNGs are 512 px on the long side, NDVI red → yellow → green, transparent outside the polygon, grey where clouded.
+- `previewBounds` is `[[south, west], [north, east]]` in WGS84, ready for a Leaflet `imageOverlay`. Preview PNGs are 512 px on the long side, NDVI brown → green with most colour steps above 0.65 so canopy detail shows, transparent outside the polygon, grey where clouded.
 - `txHash` / `onChainError` are filled in after the oracle runs. `txHash` is `null` when nothing was sent, and `onChainError` says why (e.g. `oracle disabled: …`, `0 credits estimated: nothing to mint`).
 - Monitoring reports (`kind: "monitoring"`) also carry `newlyDeforestedHa` (loss beyond what the reference verification already counted), `reversalOfReportId` (that verification), and `lostCredits` (integer, what was passed to `flagReversal`). Their `vintage` is the vintage being reversed.
 
@@ -74,27 +74,51 @@ This is the `reportHash` passed to `submitVerification` / `flagReversal`. To che
 
 | Method | Path | Purpose |
 |---|---|---|
-| `POST` | `/api/projects` | Register a project. Body: `{ "name", "owner" (wallet address), "polygon" (GeoJSON Polygon, or a Feature wrapping one; 1–50,000 ha) }` → `{ "projectId", "txHash", "onChainError" }`. The oracle calls `registerProject(projectId, owner, "<PUBLIC_BASE_URL>/api/projects/{id}")`. |
+| `POST` | `/api/projects` | Register a project as **pending**. Body: `{ "name", "owner" (wallet address), "polygon" (GeoJSON Polygon; 1–50,000 ha), "issuedAt" (ISO-8601), "signature" }` → `{ "projectId", "status": "pending", "txHash": null, "onChainError": null }`. `signature` is the owner's `personal_sign` over the registration message below. **403** if the signature doesn't recover to `owner` or is older than 10 minutes; **409** if the boundary overlaps a project that wasn't rejected by more than 1% of the smaller polygon. Nothing goes on-chain yet. |
+| `POST` | `/api/projects/{id}/review` | An approver approves or rejects a pending project. Body: `{ "decision": "approve" \| "reject", "regionalBaselineLossRatePct" (0–10, default 2.1), "tco2ePerHa" (10–1000, default 450), "note" (≤ 280 chars), "issuedAt", "signature" }` → `{ "projectId", "status", "txHash", "onChainError" }`. The signer must hold `DEFAULT_ADMIN_ROLE` on CanopyCredits (or be listed in `CANOPY_APPROVERS`), else **403**. Approval calls `registerProject(projectId, owner, "<PUBLIC_BASE_URL>/api/projects/{id}")`. **409** if already reviewed. |
+| `GET` | `/api/approvers/{address}` | `{ "address", "isApprover" }`, used by the UI to show the review form |
 | `GET` | `/api/projects` | List of projects (see below) |
 | `GET` | `/api/projects/{id}` | One project, plus `"reports"`: its full reports, newest first |
-| `POST` | `/api/projects/{id}/verify` | Run verification → the **report** above. Optional body `{ "regionalBaselineLossRatePct", "tco2ePerHa" }`. If credits > 0 the oracle registers the project on-chain if needed, then calls `submitVerification`. **409** if this project's vintage is already verified (an earlier off-chain-only verification can be redone once the oracle is live). |
-| `POST` | `/api/projects/{id}/monitor` | Re-check the forest → a **monitoring report**. `?simulateDeforestation=true` for the demo. If `lostCredits > 0`: `status = "reversal_detected"`, the project becomes `"reversed"`, and the oracle calls `flagReversal`. **400** if the project was never verified. |
+| `POST` | `/api/projects/{id}/verify` | Run verification → the **report** above. Takes no parameters: the methodology inputs come from the approver's review. **403** unless the project is approved. If credits > 0 the oracle registers the project on-chain if needed, then calls `submitVerification`. **409** if this project's vintage is already verified (an earlier off-chain-only verification can be redone once the oracle is live). |
+| `POST` | `/api/projects/{id}/monitor` | Re-check the forest → a **monitoring report**. `?simulateDeforestation=true` for the demo. If `lostCredits > 0`: `status = "reversal_detected"`, the project becomes `"reversed"`, and the oracle calls `flagReversal`. **400** if the project was never verified; **403** unless approved, or for `simulateDeforestation` when `CANOPY_DEMO_CONTROLS=0`; **429** if the project was re-checked in the last 30 s. |
 | `GET` | `/api/reports/{reportId}` | Full report JSON |
 | `GET` | `/api/reports/{reportId}/{baseline,current}.png` | NDVI preview images |
-| `GET` | `/api/health` | `{ "ok", "oracleEnabled", "oracleDisabledReason" }` |
+| `GET` | `/api/health` | `{ "ok", "oracleEnabled", "oracleDisabledReason", "demoControls" }` |
 
 Project object (list and detail):
 ```json
 {
   "projectId": 1, "name": "…", "owner": "0x… (checksummed)", "polygon": { "type": "Polygon", "coordinates": [] },
-  "areaHa": 1024.1, "createdAt": "2026-10-19T12:00:00Z", "status": "active | reversed",
+  "areaHa": 1024.1, "createdAt": "2026-10-19T12:00:00Z", "status": "pending | rejected | active | reversed",
+  "boundaryHash": "0x… (keccak256 of the polygon as canonical JSON)", "ownerSignature": "0x… | null",
+  "review": { "decision", "reviewer", "reviewedAt", "regionalBaselineLossRatePct", "tco2ePerHa", "note", "signature" } | null,
   "onChainRegistered": true, "registerTxHash": "0x… | null",
   "latestReport": { "reportId", "kind", "status", "creditsEstimated", "vintage", "txHash", "createdAt" } | null
 }
 ```
 
-Errors: `{ "error": "message" }` with status `400` (validation), `404`, `409` (already verified) or `500` (e.g. satellite analysis failed: no clear scene, Planetary Computer unreachable). No fake data is ever returned.
-CORS: allow `http://localhost:3000`.
+Signed messages (EIP-191 `personal_sign`; built identically in `backend/app/auth.py` and `frontend/src/lib/auth.ts`; numbers have at most two decimals and no trailing zeros):
+```
+CanopyChain: register a forest project
+
+Name: <name>
+Owner: <checksummed owner>
+Boundary hash: <keccak256 of {"coordinates":…,"type":"Polygon"} as canonical JSON>
+Issued at: <issuedAt>
+```
+```
+CanopyChain: review a forest project
+
+Project: #<id>
+Decision: approve | reject
+Regional baseline loss rate: <rate>%
+tCO2e per hectare: <tco2e>
+Note: <note>
+Issued at: <issuedAt>
+```
+
+Errors: `{ "error": "message" }` with status `400` (validation), `403` (signature, approval or permission), `404`, `409` (already verified, already reviewed, overlapping boundary), `429` (re-check cooldown) or `500` (e.g. satellite analysis failed: no clear scene, Planetary Computer unreachable). No fake data is ever returned.
+CORS: `http://localhost:3000`, or the comma-separated `CANOPY_CORS_ORIGINS`. Error responses carry CORS headers too.
 
 Speed: a live verification of a ~1,000 ha polygon takes ~10 s (two Planetary Computer reads). The two demo forests in `backend/app/demo_forests.py` are cached in `backend/demo_cache` and return instantly.
 
@@ -162,3 +186,4 @@ Transfers and trading use standard ERC-1155 `safeTransferFrom`. A marketplace is
 - v0.1 (Oct 19): contract section matches `CanopyCredits.sol`. Added structs, `getIssuance`, `tokenIdFor`, `bufferBalance`, `retirementCount`, `totalSupply`, the buffer rounding rule and custom errors. Nothing removed or renamed.
 - v0.2 (Oct 19): `shared/contracts.json` gains `deployBlock` and `deployTx`.
 - v0.3 (Oct 19): backend implemented. Report gains `kind`, `targetDate`, `validCoveragePct`, `imagery.previewBounds/pixelSizeM/simulatedDeforestation`, `txHash`, `onChainError`, and for monitoring `newlyDeforestedHa`, `reversalOfReportId`, `lostCredits`. `status: "failed"` dropped (failures are HTTP 500). Report hashing rule, project object, 409 on double verification, `/api/health` and methodology details documented.
+- v0.4 (Oct 19): signed registration (pending status), overlap check, signed review endpoint and `/api/approvers`, verify no longer accepts methodology inputs, re-check cooldown, `demoControls` in `/api/health`.

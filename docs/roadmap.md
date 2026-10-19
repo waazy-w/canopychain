@@ -17,11 +17,14 @@
 - ERC-1155 credits on Polygon Amoy with a buffer pool, retirement certificates and reversals
 - Sentinel-2 NDVI verification with cloud masking and report hashing
 - dApp: map registration, verification, retirement, public registry
+- Integrity gates: owner wallet signatures, overlap check between project boundaries, signed approval by the contract admin that fixes the methodology inputs, rate-limited monitoring
 
 ### Phase 1: Pilot (3–6 months)
 - Work with 3–5 community forest projects and one NGO partner
 - Pin reports and NDVI previews to IPFS so evidence doesn't depend on our server
-- Add an overlap check between project polygons and a monitoring ring around each project to catch leakage
+- Add a monitoring ring around each project to catch leakage (deforestation displaced to just outside the boundary)
+- **Additionality from data, not a fixed rate:** compute each project's baseline loss rate from the satellite history of a reference area around it (for example a 10 km ring over the previous 5–10 years), so a forest that was never under pressure earns few or no credits
+- Move the approval on-chain: `registerProject` takes the approver's signature and a boundary hash, so the contract itself rejects unapproved projects
 - Add Sentinel-1 radar for cloudy regions and a land-cover classifier on top of NDVI
 - Scheduled monitoring (monthly) instead of on-demand
 - External smart-contract audit before any mainnet deployment

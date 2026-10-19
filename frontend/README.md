@@ -34,6 +34,7 @@ All are optional. Put them in `frontend/.env.local` (gitignored).
    cd backend
    CONTRACTS_JSON=../contracts/deployments/local.json AMOY_RPC_URL=http://127.0.0.1:8545 \
    ORACLE_PRIVATE_KEY=0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d \
+   CANOPY_APPROVERS=0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC \
    .venv/Scripts/python -m uvicorn app.main:app --port 8000
    ```
 3. `cd frontend && NEXT_PUBLIC_CHAIN=local npm run dev`. In MetaMask, add network "Hardhat" (RPC `http://127.0.0.1:8545`, chain id 31337) and import a Hardhat test account to retire credits.
@@ -42,7 +43,7 @@ Running `npm run typecheck` or `npm run build` re-syncs `src/generated/contracts
 
 ## Browser end-to-end test
 
-With the three services from "Running everything locally" up: `npx playwright install chromium` (once), then `npm run e2e`. It drives a headless browser through connect wallet → draw and register a forest → verify → verify report integrity → retire → certificate → simulate deforestation → integrity of the reversal → registry, with a test wallet backed by Hardhat account #2. It also checks that the register form's area matches the area the backend stores, and that "Run verification" locks once the vintage is verified or the project is reversed. It fails on any step or browser console error and saves screenshots to `e2e/shots/`.
+With the three services from "Running everything locally" up: `npx playwright install chromium` (once), then `npm run e2e`. It drives a headless browser through connect wallet → draw, sign and register a forest → try to register the same forest again (must be refused) → approve it with a signed review → verify → verify report integrity → retire → certificate → simulate deforestation → integrity of the reversal → registry, with a test wallet backed by Hardhat account #2, which the backend lists in `CANOPY_APPROVERS` (step 2 above). It also checks that the register form's area matches the area the backend stores, and that "Run verification" locks once the vintage is verified or the project is reversed. It fails on any step or browser console error and saves screenshots to `e2e/shots/`.
 
 ## Behaviour without the backend or the contract
 
