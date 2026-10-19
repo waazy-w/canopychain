@@ -17,7 +17,7 @@ function FitBounds({ polygon }: { polygon: GeoJSONPolygon }) {
 }
 
 export default function ProjectMapInner({ polygon, reversed }: { polygon: GeoJSONPolygon; reversed?: boolean }) {
-  const color = reversed ? "#dc2626" : "#4ade80";
+  const color = reversed ? "#dc2626" : "#34d399";
   return (
     <MapContainer center={[0, 0]} zoom={2} scrollWheelZoom={false} className="h-full w-full">
       <SatelliteTiles />

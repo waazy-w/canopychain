@@ -19,8 +19,8 @@ export default function RegistryPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-bold text-forest-900">Public registry</h1>
-        <p className="mt-1 text-sm text-stone-600">
+        <h1 className="text-2xl font-bold text-ink">Public registry</h1>
+        <p className="mt-1 text-sm text-muted">
           Every project, issuance, retirement and reversal. Events are read directly from the CanopyCredits contract.
         </p>
       </div>
@@ -29,14 +29,14 @@ export default function RegistryPage() {
         {projects.isLoading && <Spinner />}
         {projects.isError && <ErrorBox>{errorMessage(projects.error)}</ErrorBox>}
         {projects.data?.length === 0 && (
-          <p className="text-sm text-stone-600">
-            No projects yet. <Link href="/register" className="text-forest-700 underline">Register the first one</Link>.
+          <p className="text-sm text-muted">
+            No projects yet. <Link href="/register" className="text-accent underline">Register the first one</Link>.
           </p>
         )}
         {!!projects.data?.length && (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
-              <thead className="text-xs uppercase text-stone-500">
+              <thead className="text-xs uppercase text-muted">
                 <tr>
                   <th className="py-2 pr-3">#</th>
                   <th className="py-2 pr-3">Project</th>
@@ -50,10 +50,10 @@ export default function RegistryPage() {
               </thead>
               <tbody>
                 {projects.data.map((p) => (
-                  <tr key={p.projectId} className="border-t border-stone-100">
-                    <td className="py-2 pr-3 text-stone-500">{p.projectId}</td>
+                  <tr key={p.projectId} className="border-t border-line">
+                    <td className="py-2 pr-3 text-muted">{p.projectId}</td>
                     <td className="py-2 pr-3">
-                      <Link href={`/projects/${p.projectId}`} className="font-medium text-forest-800 hover:underline">
+                      <Link href={`/projects/${p.projectId}`} className="font-medium text-emerald-300 hover:underline">
                         {p.name}
                       </Link>
                     </td>
@@ -131,18 +131,18 @@ function EventFeed() {
     >
       {error && <ErrorBox>Could not read events: {error}</ErrorBox>}
       {!scan && !error && (
-        <p className="text-sm text-stone-600">
+        <p className="text-sm text-muted">
           <Spinner /> Reading events from Amoy…
         </p>
       )}
       {scan && !scan.done && (
-        <p className="mb-3 text-xs text-stone-500">
+        <p className="mb-3 text-xs text-muted">
           <Spinner /> Scanned {scanned.toLocaleString()} of {total.toLocaleString()} blocks…
         </p>
       )}
-      {scan?.done && scan.events.length === 0 && <p className="text-sm text-stone-600">No events yet.</p>}
+      {scan?.done && scan.events.length === 0 && <p className="text-sm text-muted">No events yet.</p>}
       {scan && scan.events.length > 0 && (
-        <ul className="divide-y divide-stone-100">
+        <ul className="divide-y divide-line">
           {scan.events.map((e) => (
             <EventRow key={`${e.transactionHash}-${e.logIndex}`} event={e} />
           ))}
@@ -163,7 +163,7 @@ function EventRow({ event: e }: { event: RegistryEvent }) {
       title = "Project registered";
       body = (
         <>
-          <Link href={`/projects/${a.projectId}`} className="text-forest-700 underline">
+          <Link href={`/projects/${a.projectId}`} className="text-accent underline">
             Project #{a.projectId.toString()}
           </Link>{" "}
           owned by <AddressLink address={a.owner as string} />
@@ -176,7 +176,7 @@ function EventRow({ event: e }: { event: RegistryEvent }) {
       body = (
         <>
           {fmtCredits(a.credits as bigint)} for{" "}
-          <Link href={`/projects/${a.projectId}`} className="text-forest-700 underline">
+          <Link href={`/projects/${a.projectId}`} className="text-accent underline">
             project #{a.projectId.toString()}
           </Link>
           , vintage {a.vintage.toString()} ({fmtCredits(a.buffer as bigint)} to the buffer)
@@ -190,7 +190,7 @@ function EventRow({ event: e }: { event: RegistryEvent }) {
       body = (
         <>
           {fmtCredits(a.amount as bigint)} of token {a.tokenId.toString()} for {(a.beneficiary as string) || "—"} ·{" "}
-          <Link href={`/certificates/${a.retirementId}?tx=${e.transactionHash}`} className="text-forest-700 underline">
+          <Link href={`/certificates/${a.retirementId}?tx=${e.transactionHash}`} className="text-accent underline">
             certificate #{a.retirementId.toString()}
           </Link>
         </>
@@ -201,11 +201,11 @@ function EventRow({ event: e }: { event: RegistryEvent }) {
       title = "Reversal flagged";
       body = (
         <>
-          <Link href={`/projects/${a.projectId}`} className="text-forest-700 underline">
+          <Link href={`/projects/${a.projectId}`} className="text-accent underline">
             Project #{a.projectId.toString()}
           </Link>
           , vintage {a.vintage.toString()}: {fmtCredits(a.lostCredits as bigint)} lost,{" "}
-          <strong className="text-red-700">{fmtCredits(a.bufferBurned as bigint)} burned from the buffer</strong>
+          <strong className="text-red-300">{fmtCredits(a.bufferBurned as bigint)} burned from the buffer</strong>
         </>
       );
       break;
@@ -214,9 +214,9 @@ function EventRow({ event: e }: { event: RegistryEvent }) {
   return (
     <li className="flex flex-col gap-1 py-3 text-sm sm:flex-row sm:items-center sm:justify-between">
       <div>
-        <Badge tone={tone}>{title}</Badge> <span className="ml-1 text-stone-700">{body}</span>
+        <Badge tone={tone}>{title}</Badge> <span className="ml-1 text-body">{body}</span>
       </div>
-      <div className="shrink-0 text-xs text-stone-500">
+      <div className="shrink-0 text-xs text-muted">
         block {e.blockNumber.toString()} · <TxLink hash={e.transactionHash} />
       </div>
     </li>

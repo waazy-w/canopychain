@@ -5,7 +5,7 @@ export function PrototypeBadge() {
   return (
     <span
       title="Prototype estimate (canopychain-prototype-v0), not a certified carbon methodology"
-      className="ml-1.5 inline-block rounded border border-earth-300 bg-earth-100 px-1.5 py-0.5 align-middle text-[10px] font-medium uppercase tracking-wide text-earth-800"
+      className="ml-1.5 inline-block rounded border border-amber-500/25 bg-amber-500/10 px-1.5 py-0.5 align-middle text-[10px] font-medium uppercase tracking-wide text-amber-200"
     >
       prototype estimate
     </span>
@@ -14,8 +14,8 @@ export function PrototypeBadge() {
 
 export function Card({ title, children, className = "" }: { title?: ReactNode; children: ReactNode; className?: string }) {
   return (
-    <section className={`rounded-xl border border-stone-200 bg-white p-5 shadow-sm ${className}`}>
-      {title && <h2 className="mb-3 text-base font-semibold text-forest-900">{title}</h2>}
+    <section className={`rounded-xl border border-line bg-surface p-5 ${className}`}>
+      {title && <h2 className="mb-3 text-base font-semibold text-ink">{title}</h2>}
       {children}
     </section>
   );
@@ -24,8 +24,8 @@ export function Card({ title, children, className = "" }: { title?: ReactNode; c
 export function Stat({ label, value, badge }: { label: string; value: ReactNode; badge?: boolean }) {
   return (
     <div>
-      <dt className="text-xs uppercase tracking-wide text-stone-500">{label}</dt>
-      <dd className="mt-0.5 text-lg font-semibold text-stone-900">
+      <dt className="text-xs uppercase tracking-wide text-muted">{label}</dt>
+      <dd className="mt-0.5 text-lg font-semibold text-ink">
         {value}
         {badge && <PrototypeBadge />}
       </dd>
@@ -34,10 +34,10 @@ export function Stat({ label, value, badge }: { label: string; value: ReactNode;
 }
 
 const STATUS_STYLES = {
-  green: "bg-forest-100 text-forest-800 border-forest-200",
-  red: "bg-red-100 text-red-800 border-red-200",
-  amber: "bg-amber-100 text-amber-900 border-amber-200",
-  gray: "bg-stone-100 text-stone-700 border-stone-200",
+  green: "bg-accent/15 text-emerald-300 border-accent/30",
+  red: "bg-red-500/15 text-red-300 border-red-500/30",
+  amber: "bg-amber-500/15 text-amber-200 border-amber-500/30",
+  gray: "bg-raised text-body border-line",
 } as const;
 
 export function Badge({ tone, children }: { tone: keyof typeof STATUS_STYLES; children: ReactNode }) {
@@ -55,7 +55,7 @@ export function shortHex(hex: string, chars = 6) {
 export function TxLink({ hash, label }: { hash: string; label?: string }) {
   if (!EXPLORER_URL) return <span className="font-mono" title={hash}>{label ?? shortHex(hash)}</span>;
   return (
-    <a href={txUrl(hash)} target="_blank" rel="noreferrer" className="font-mono text-forest-700 underline hover:text-forest-900">
+    <a href={txUrl(hash)} target="_blank" rel="noreferrer" className="font-mono text-accent underline hover:text-ink">
       {label ?? shortHex(hash)}
     </a>
   );
@@ -64,18 +64,18 @@ export function TxLink({ hash, label }: { hash: string; label?: string }) {
 export function AddressLink({ address }: { address: string }) {
   if (!EXPLORER_URL) return <span className="font-mono" title={address}>{shortHex(address, 4)}</span>;
   return (
-    <a href={addressUrl(address)} target="_blank" rel="noreferrer" className="font-mono text-forest-700 underline hover:text-forest-900">
+    <a href={addressUrl(address)} target="_blank" rel="noreferrer" className="font-mono text-accent underline hover:text-ink">
       {shortHex(address, 4)}
     </a>
   );
 }
 
 export function ErrorBox({ children }: { children: ReactNode }) {
-  return <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{children}</div>;
+  return <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">{children}</div>;
 }
 
 export function Notice({ children }: { children: ReactNode }) {
-  return <div className="rounded-lg border border-stone-200 bg-stone-50 px-4 py-3 text-sm text-stone-600">{children}</div>;
+  return <div className="rounded-lg border border-line bg-raised px-4 py-3 text-sm text-muted">{children}</div>;
 }
 
 export function Spinner() {
@@ -88,10 +88,10 @@ export function Spinner() {
 }
 
 export const buttonClass =
-  "inline-flex items-center justify-center gap-2 rounded-lg bg-forest-700 px-4 py-2 text-sm font-medium text-white hover:bg-forest-800 disabled:cursor-not-allowed disabled:opacity-50";
+  "inline-flex items-center justify-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-canvas transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:opacity-50";
 export const secondaryButtonClass =
-  "inline-flex items-center justify-center gap-2 rounded-lg border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-800 hover:bg-stone-50 disabled:cursor-not-allowed disabled:opacity-50";
+  "inline-flex items-center justify-center gap-2 rounded-lg border border-line-strong bg-surface px-4 py-2 text-sm font-medium text-body transition hover:border-accent/40 hover:bg-raised hover:text-ink disabled:cursor-not-allowed disabled:opacity-50";
 export const dangerButtonClass =
-  "inline-flex items-center justify-center gap-2 rounded-lg bg-red-700 px-4 py-2 text-sm font-medium text-white hover:bg-red-800 disabled:cursor-not-allowed disabled:opacity-50";
+  "inline-flex items-center justify-center gap-2 rounded-lg bg-red-500/90 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-50";
 export const inputClass =
-  "w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm focus:border-forest-500 focus:outline-none focus:ring-2 focus:ring-forest-200";
+  "w-full rounded-lg border border-line-strong bg-canvas px-3 py-2 text-sm text-ink placeholder:text-subtle focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30";

@@ -42,7 +42,7 @@ export function RetirePanel({ rows }: { rows: VintageOnChain[] }) {
   if (!isConnected) {
     return (
       <Card title="Retire credits">
-        <p className="mb-3 text-sm text-stone-600">Connect the wallet that holds credits for this project to retire them.</p>
+        <p className="mb-3 text-sm text-muted">Connect the wallet that holds credits for this project to retire them.</p>
         <ConnectButton />
       </Card>
     );
@@ -94,7 +94,7 @@ export function RetirePanel({ rows }: { rows: VintageOnChain[] }) {
 
   return (
     <Card title="Retire credits">
-      <p className="mb-4 text-sm text-stone-600">
+      <p className="mb-4 text-sm text-muted">
         Retiring burns credits from your wallet and records a permanent on-chain certificate. It can&apos;t be undone.
       </p>
       <form
@@ -105,7 +105,7 @@ export function RetirePanel({ rows }: { rows: VintageOnChain[] }) {
         }}
       >
         <label className="block text-sm">
-          <span className="font-medium text-stone-700">Vintage</span>
+          <span className="font-medium text-body">Vintage</span>
           <select
             className={`${inputClass} mt-1`}
             value={row.vintage}
@@ -119,7 +119,7 @@ export function RetirePanel({ rows }: { rows: VintageOnChain[] }) {
           </select>
         </label>
         <label className="block text-sm">
-          <span className="font-medium text-stone-700">Amount (credits, 1 = 1 tCO2e)</span>
+          <span className="font-medium text-body">Amount (credits, 1 = 1 tCO2e)</span>
           <div className="mt-1 flex gap-2">
             <input
               className={inputClass}
@@ -129,7 +129,7 @@ export function RetirePanel({ rows }: { rows: VintageOnChain[] }) {
             />
             <button
               type="button"
-              className="rounded-lg border border-stone-300 px-3 text-xs hover:bg-stone-50"
+              className="rounded-lg border border-line-strong px-3 text-xs hover:bg-raised"
               onClick={() => setAmount(balance.toString())}
             >
               Max
@@ -137,7 +137,7 @@ export function RetirePanel({ rows }: { rows: VintageOnChain[] }) {
           </div>
         </label>
         <label className="block text-sm">
-          <span className="font-medium text-stone-700">Beneficiary</span>
+          <span className="font-medium text-body">Beneficiary</span>
           <input
             className={`${inputClass} mt-1`}
             value={beneficiary}
@@ -147,7 +147,7 @@ export function RetirePanel({ rows }: { rows: VintageOnChain[] }) {
           />
         </label>
         <label className="block text-sm">
-          <span className="font-medium text-stone-700">Reason (optional)</span>
+          <span className="font-medium text-body">Reason (optional)</span>
           <input
             className={`${inputClass} mt-1`}
             value={reason}
@@ -156,11 +156,11 @@ export function RetirePanel({ rows }: { rows: VintageOnChain[] }) {
             maxLength={200}
           />
         </label>
-        {parsedAmount > balance && <p className="text-xs text-red-700">You only hold {fmtCredits(balance)}.</p>}
-        {wrongNetwork && <p className="text-xs text-red-700">Switch your wallet to {targetChain.name} first.</p>}
+        {parsedAmount > balance && <p className="text-xs text-red-300">You only hold {fmtCredits(balance)}.</p>}
+        {wrongNetwork && <p className="text-xs text-red-300">Switch your wallet to {targetChain.name} first.</p>}
         {error && <ErrorBox>{error}</ErrorBox>}
         {txHash && (
-          <p className="text-xs text-stone-600">
+          <p className="text-xs text-muted">
             Transaction: <TxLink hash={txHash} />
           </p>
         )}

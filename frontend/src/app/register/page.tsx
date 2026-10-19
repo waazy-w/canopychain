@@ -40,14 +40,14 @@ export default function RegisterPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-forest-900">Register a forest project</h1>
-        <p className="mt-1 text-sm text-stone-600">
+        <h1 className="text-2xl font-bold text-ink">Register a forest project</h1>
+        <p className="mt-1 text-sm text-muted">
           Use the polygon or rectangle tool (top left of the map) to outline the forest. Drawing again replaces the shape.
         </p>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
-        <div className="h-[460px] overflow-hidden rounded-xl border border-stone-200 lg:h-[560px]">
+        <div className="h-[460px] overflow-hidden rounded-xl border border-line lg:h-[560px]">
           <DrawMap onChange={onPolygon} />
         </div>
 
@@ -60,7 +60,7 @@ export default function RegisterPage() {
             }}
           >
             <label className="block text-sm">
-              <span className="font-medium text-stone-700">Name</span>
+              <span className="font-medium text-body">Name</span>
               <input
                 className={`${inputClass} mt-1`}
                 value={name}
@@ -70,22 +70,22 @@ export default function RegisterPage() {
               />
             </label>
             <label className="block text-sm">
-              <span className="font-medium text-stone-700">Owner wallet</span>
+              <span className="font-medium text-body">Owner wallet</span>
               <input
                 className={`${inputClass} mt-1 font-mono text-xs`}
                 value={owner}
                 onChange={(e) => setOwnerInput(e.target.value)}
                 placeholder="0x… (defaults to your connected wallet)"
               />
-              <span className="mt-1 block text-xs text-stone-500">Credits are minted to this address.</span>
+              <span className="mt-1 block text-xs text-muted">Credits are minted to this address.</span>
             </label>
-            <div className="rounded-lg bg-forest-50 px-3 py-2 text-sm">
-              <span className="text-stone-600">Area: </span>
-              <strong className="text-forest-900">{polygon ? fmtHa(areaHa) : "draw a polygon"}</strong>
+            <div className="rounded-lg bg-accent/10 px-3 py-2 text-sm">
+              <span className="text-muted">Area: </span>
+              <strong className="text-ink">{polygon ? fmtHa(areaHa) : "draw a polygon"}</strong>
             </div>
 
             {problems.length > 0 && (
-              <ul className="list-inside list-disc text-xs text-stone-500">
+              <ul className="list-inside list-disc text-xs text-muted">
                 {problems.map((p) => (
                   <li key={p}>{p}</li>
                 ))}

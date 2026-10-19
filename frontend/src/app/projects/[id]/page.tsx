@@ -41,7 +41,7 @@ export default function ProjectPage() {
   if (!validId) return <ErrorBox>Invalid project id.</ErrorBox>;
   if (projectQuery.isLoading) {
     return (
-      <p className="text-stone-600">
+      <p className="text-muted">
         <Spinner /> Loading project…
       </p>
     );
@@ -70,24 +70,24 @@ export default function ProjectPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="text-sm text-stone-500">
+          <p className="text-sm text-muted">
             <Link href="/registry" className="hover:underline">
               Registry
             </Link>{" "}
             / Project #{project.projectId}
           </p>
-          <h1 className="mt-1 flex flex-wrap items-center gap-2 text-2xl font-bold text-forest-900">
+          <h1 className="mt-1 flex flex-wrap items-center gap-2 text-2xl font-bold text-ink">
             {project.name}
             {reversed ? <Badge tone="red">Reversal flagged</Badge> : report ? <ReportStatusBadge status={report.status} /> : <Badge tone="gray">Not verified</Badge>}
           </h1>
-          <p className="mt-1 text-sm text-stone-600">
+          <p className="mt-1 text-sm text-muted">
             {fmtHa(project.areaHa)} · owner <AddressLink address={project.owner} /> · registered {fmtDate(project.createdAt)}
           </p>
         </div>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_380px]">
-        <div className="h-[360px] overflow-hidden rounded-xl border border-stone-200 lg:h-full lg:min-h-[360px]">
+        <div className="h-[360px] overflow-hidden rounded-xl border border-line lg:h-full lg:min-h-[360px]">
           <ProjectMap polygon={project.polygon} reversed={reversed} />
         </div>
         <OnChainPanel project={onChainProject} rows={vintagesOnChain.rows} loadingRows={vintagesOnChain.isLoading} />
@@ -111,12 +111,12 @@ export default function ProjectPage() {
                     <button
                       type="button"
                       onClick={() => setSelectedReportId(r.reportId)}
-                      className={`flex w-full items-center justify-between gap-2 rounded-md px-2 py-1.5 text-left hover:bg-stone-50 ${
-                        r.reportId === report.reportId ? "bg-forest-50" : ""
+                      className={`flex w-full items-center justify-between gap-2 rounded-md px-2 py-1.5 text-left hover:bg-raised ${
+                        r.reportId === report.reportId ? "bg-accent/10" : ""
                       }`}
                     >
                       <span>
-                        <span className="block text-xs text-stone-500">{fmtDate(r.createdAt)}</span>
+                        <span className="block text-xs text-muted">{fmtDate(r.createdAt)}</span>
                         {r.status === "reversal_detected"
                           ? `Lost ${fmtCredits(r.lostCredits ?? 0)}`
                           : `${fmtCredits(r.creditsEstimated)} · ${r.vintage}`}

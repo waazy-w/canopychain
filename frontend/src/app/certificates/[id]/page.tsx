@@ -67,7 +67,7 @@ function Certificate() {
   if (!valid) return <ErrorBox>Invalid certificate id.</ErrorBox>;
   if (retirement.isLoading) {
     return (
-      <p className="text-stone-600">
+      <p className="text-muted">
         <Spinner /> Reading the certificate from the contract…
       </p>
     );
@@ -78,27 +78,27 @@ function Certificate() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-4">
-      <article className="relative overflow-hidden rounded-2xl border-4 border-double border-forest-700 bg-white p-8 shadow-sm sm:p-12">
+      <article className="relative overflow-hidden rounded-2xl border-4 border-double border-accent/50 bg-surface p-8 shadow-sm sm:p-12">
         <div aria-hidden className="pointer-events-none absolute -right-10 -top-10 text-[180px] leading-none opacity-[0.06]">
           🌳
         </div>
-        <p className="text-center text-xs font-semibold uppercase tracking-[0.3em] text-forest-600">CanopyChain</p>
-        <h1 className="mt-2 text-center text-3xl font-bold text-forest-900">Certificate of Retirement</h1>
-        <p className="mt-1 text-center text-sm text-stone-500">Retirement #{retirementId.toString()} · recorded on Polygon Amoy</p>
+        <p className="text-center text-xs font-semibold uppercase tracking-[0.3em] text-accent">CanopyChain</p>
+        <h1 className="mt-2 text-center text-3xl font-bold text-ink">Certificate of Retirement</h1>
+        <p className="mt-1 text-center text-sm text-muted">Retirement #{retirementId.toString()} · recorded on Polygon Amoy</p>
 
-        <p className="mt-8 text-center text-lg text-stone-700">This certifies that</p>
-        <p className="mt-1 text-center text-4xl font-bold text-forest-800">
+        <p className="mt-8 text-center text-lg text-body">This certifies that</p>
+        <p className="mt-1 text-center text-4xl font-bold text-emerald-300">
           {fmtCredits(r.amount)}
           <PrototypeBadge />
         </p>
-        <p className="mt-1 text-center text-lg text-stone-700">were permanently retired on behalf of</p>
-        <p className="mt-1 text-center text-2xl font-semibold text-stone-900">{r.beneficiary || "—"}</p>
-        {r.reason && <p className="mt-2 text-center italic text-stone-600">&ldquo;{r.reason}&rdquo;</p>}
+        <p className="mt-1 text-center text-lg text-body">were permanently retired on behalf of</p>
+        <p className="mt-1 text-center text-2xl font-semibold text-ink">{r.beneficiary || "—"}</p>
+        {r.reason && <p className="mt-2 text-center italic text-muted">&ldquo;{r.reason}&rdquo;</p>}
 
-        <dl className="mt-10 grid grid-cols-1 gap-x-8 gap-y-3 border-t border-stone-200 pt-6 text-sm sm:grid-cols-2">
+        <dl className="mt-10 grid grid-cols-1 gap-x-8 gap-y-3 border-t border-line pt-6 text-sm sm:grid-cols-2">
           <Row label="Project">
             {project.data ? (
-              <Link href={`/projects/${token!.projectId}`} className="text-forest-700 underline">
+              <Link href={`/projects/${token!.projectId}`} className="text-accent underline">
                 {project.data.name}
               </Link>
             ) : (
@@ -119,7 +119,7 @@ function Certificate() {
           <Row label="Contract">{CONTRACT_ADDRESS && <AddressLink address={CONTRACT_ADDRESS} />}</Row>
         </dl>
 
-        <p className="mt-8 text-center text-xs text-stone-500">
+        <p className="mt-8 text-center text-xs text-muted">
           Retired credits are burned and can never be transferred or counted again. Carbon figures are a prototype
           estimate (canopychain-prototype-v0), not a certified methodology. Testnet only.
         </p>
@@ -139,8 +139,8 @@ function Certificate() {
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="flex justify-between gap-4 sm:block">
-      <dt className="text-xs uppercase tracking-wide text-stone-500">{label}</dt>
-      <dd className="text-stone-900">{children}</dd>
+      <dt className="text-xs uppercase tracking-wide text-muted">{label}</dt>
+      <dd className="text-ink">{children}</dd>
     </div>
   );
 }

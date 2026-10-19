@@ -78,8 +78,8 @@ export function VerifyActions({
           Simulate deforestation
         </button>
       </div>
-      {verifyBlockedReason && <p className="mt-2 text-sm text-stone-600">{verifyBlockedReason}</p>}
-      <p className="mt-2 text-xs text-stone-500">
+      {verifyBlockedReason && <p className="mt-2 text-sm text-muted">{verifyBlockedReason}</p>}
+      <p className="mt-2 text-xs text-muted">
         &quot;Simulate deforestation&quot; is a demo control: the backend injects forest loss into the current scene and
         the oracle flags a reversal on-chain.
       </p>
@@ -101,7 +101,7 @@ function ResultSummary({ result }: { result: Result }) {
   return (
     <div
       className={`rounded-lg border px-4 py-3 text-sm ${
-        reversal ? "border-red-200 bg-red-50 text-red-900" : "border-forest-200 bg-forest-50 text-forest-900"
+        reversal ? "border-red-500/30 bg-red-500/10 text-red-200" : "border-accent/30 bg-accent/10 text-ink"
       }`}
     >
       {result.kind === "verify" && data.status === "verified" && (

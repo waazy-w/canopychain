@@ -50,12 +50,12 @@ export function OnChainPanel({
       }
     >
       {!p && !project.isLoading && (
-        <p className="text-sm text-stone-600">This project hasn&apos;t been registered on-chain yet.</p>
+        <p className="text-sm text-muted">This project hasn&apos;t been registered on-chain yet.</p>
       )}
       {p && (
         <>
           {reversed && (
-            <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+            <div className="mb-4 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
               <strong>Reversal flagged.</strong> Satellite monitoring found forest loss. {fmtCredits(p.totalBufferBurned)}{" "}
               were cancelled from the buffer pool and no new credits can be issued for this project.
             </div>
@@ -64,7 +64,7 @@ export function OnChainPanel({
             <Stat label="Total issued" value={fmtCredits(p.totalIssued)} badge />
             <Stat
               label="Buffer burned"
-              value={<span className={reversed ? "text-red-700" : ""}>{fmtCredits(p.totalBufferBurned)}</span>}
+              value={<span className={reversed ? "text-red-300" : ""}>{fmtCredits(p.totalBufferBurned)}</span>}
             />
             <Stat label="Owner" value={<AddressLink address={p.owner} />} />
             <Stat label="Registered" value={<span className="text-sm">{fmtDate(p.registeredAt)}</span>} />
@@ -72,11 +72,11 @@ export function OnChainPanel({
         </>
       )}
 
-      {loadingRows && <p className="mt-4 text-sm text-stone-500"><Spinner /> Loading vintages…</p>}
+      {loadingRows && <p className="mt-4 text-sm text-muted"><Spinner /> Loading vintages…</p>}
       {issued.length > 0 && (
         <div className="mt-5 overflow-x-auto">
           <table className="w-full text-left text-sm">
-            <thead className="text-xs uppercase text-stone-500">
+            <thead className="text-xs uppercase text-muted">
               <tr>
                 <th className="py-1 pr-3">Vintage</th>
                 <th className="py-1 pr-3">Token id</th>
@@ -87,13 +87,13 @@ export function OnChainPanel({
             </thead>
             <tbody>
               {issued.map((r) => (
-                <tr key={r.vintage} className="border-t border-stone-100">
+                <tr key={r.vintage} className="border-t border-line">
                   <td className="py-1.5 pr-3 font-medium">{r.vintage}</td>
                   <td className="py-1.5 pr-3 font-mono text-xs">{r.tokenId.toString()}</td>
                   <td className="py-1.5 pr-3">{fmtCredits(r.issuance!.credits)}</td>
                   <td className="py-1.5 pr-3">
                     {r.bufferBalance !== undefined ? fmtCredits(r.bufferBalance) : "—"}
-                    <span className="text-xs text-stone-400"> / {r.issuance!.buffer.toString()}</span>
+                    <span className="text-xs text-subtle"> / {r.issuance!.buffer.toString()}</span>
                   </td>
                   <td className="py-1.5">{r.totalSupply !== undefined ? fmtCredits(r.totalSupply) : "—"}</td>
                 </tr>

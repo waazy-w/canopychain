@@ -18,12 +18,12 @@ export function ReportView({ report }: { report: VerificationReport }) {
     <Card
       title={
         <span className="flex flex-wrap items-center gap-2">
-          Report <span className="font-mono text-sm font-normal text-stone-500">{report.reportId}</span>
+          Report <span className="font-mono text-sm font-normal text-muted">{report.reportId}</span>
           <ReportStatusBadge status={report.status} />
         </span>
       }
     >
-      <p className="text-xs text-stone-500">
+      <p className="text-xs text-muted">
         Vintage {report.vintage} · created {fmtDate(report.createdAt)} · {report.imagery.source}
       </p>
 
@@ -31,25 +31,25 @@ export function ReportView({ report }: { report: VerificationReport }) {
         <Preview label={`Baseline · ${report.baseline.date}`} src={resolveAssetUrl(report.imagery.previewBaselineUrl)} />
         <Preview label={`Current · ${report.current.date}`} src={resolveAssetUrl(report.imagery.previewCurrentUrl)} />
       </div>
-      <p className="mt-2 text-xs text-stone-500">NDVI: brown = bare ground, green = dense canopy.</p>
+      <p className="mt-2 text-xs text-muted">NDVI: brown = bare ground, green = dense canopy.</p>
 
       <dl className="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-3">
         <Stat label="Project area" value={fmtHa(report.areaHa)} />
         <Stat label="Baseline forest" value={fmtHa(report.baseline.forestCoverHa)} />
         <Stat label="Current forest" value={fmtHa(report.current.forestCoverHa)} />
         <Stat label="Mean NDVI" value={`${report.baseline.meanNdvi.toFixed(2)} → ${report.current.meanNdvi.toFixed(2)}`} />
-        <Stat label="Deforested" value={<span className={reversal ? "text-red-700" : ""}>{fmtHa(report.deforestedHa)}</span>} />
+        <Stat label="Deforested" value={<span className={reversal ? "text-red-300" : ""}>{fmtHa(report.deforestedHa)}</span>} />
         <Stat label="Avoided loss" value={fmtHa(report.avoidedLossHa)} />
         <Stat label="Regional loss rate" value={`${fmtNum(report.regionalBaselineLossRatePct)}%/yr`} />
         <Stat label="tCO2e per ha" value={fmtNum(report.tco2ePerHa)} badge />
         {reversal ? (
-          <Stat label="Lost credits" value={<span className="text-red-700">{fmtCredits(report.lostCredits ?? 0)}</span>} badge />
+          <Stat label="Lost credits" value={<span className="text-red-300">{fmtCredits(report.lostCredits ?? 0)}</span>} badge />
         ) : (
           <Stat label="Credits estimated" value={fmtCredits(report.creditsEstimated)} badge />
         )}
       </dl>
 
-      <div className="mt-5 space-y-1 border-t border-stone-100 pt-4 text-xs text-stone-600">
+      <div className="mt-5 space-y-1 border-t border-line pt-4 text-xs text-muted">
         <p>
           Report hash: <span className="font-mono">{shortHex(report.reportHash, 10)}</span>
         </p>
@@ -67,9 +67,9 @@ export function ReportView({ report }: { report: VerificationReport }) {
 
 function Preview({ label, src }: { label: string; src: string }) {
   return (
-    <figure className="overflow-hidden rounded-lg border border-stone-200 bg-stone-100">
+    <figure className="overflow-hidden rounded-lg border border-line bg-raised">
       <img src={src} alt={`NDVI preview, ${label}`} className="aspect-square w-full object-cover" />
-      <figcaption className="px-3 py-1.5 text-xs text-stone-600">{label}</figcaption>
+      <figcaption className="px-3 py-1.5 text-xs text-muted">{label}</figcaption>
     </figure>
   );
 }

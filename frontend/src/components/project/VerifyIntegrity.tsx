@@ -25,14 +25,14 @@ interface Result {
 
 const ICON: Record<Outcome, string> = { ok: "✓", fail: "✗", skip: "–" };
 const ICON_STYLE: Record<Outcome, string> = {
-  ok: "bg-forest-100 text-forest-800",
-  fail: "bg-red-100 text-red-800",
-  skip: "bg-stone-100 text-stone-500",
+  ok: "bg-accent/15 text-emerald-300",
+  fail: "bg-red-500/15 text-red-300",
+  skip: "bg-raised text-muted",
 };
 const VERDICT_STYLE = {
-  green: "border-forest-200 bg-forest-50 text-forest-900",
-  red: "border-red-200 bg-red-50 text-red-900",
-  amber: "border-amber-200 bg-amber-50 text-amber-900",
+  green: "border-accent/30 bg-accent/10 text-ink",
+  red: "border-red-500/30 bg-red-500/10 text-red-200",
+  amber: "border-amber-500/30 bg-amber-500/10 text-amber-200",
 } as const;
 
 /**
@@ -57,11 +57,11 @@ export function VerifyIntegrity({ report }: { report: VerificationReport }) {
   }
 
   return (
-    <div className="mt-4 rounded-lg border border-stone-200 p-4">
+    <div className="mt-4 rounded-lg border border-line p-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="text-sm font-semibold text-forest-900">Verify report integrity</p>
-          <p className="text-xs text-stone-500">Re-hash this report in your browser and compare it with the blockchain.</p>
+          <p className="text-sm font-semibold text-ink">Verify report integrity</p>
+          <p className="text-xs text-muted">Re-hash this report in your browser and compare it with the blockchain.</p>
         </div>
         <button type="button" onClick={run} disabled={running} className={secondaryButtonClass}>
           {running ? (
@@ -88,8 +88,8 @@ export function VerifyIntegrity({ report }: { report: VerificationReport }) {
                   {ICON[s.outcome]}
                 </span>
                 <span>
-                  <span className="font-medium text-stone-800">{s.label}</span>
-                  <span className="block break-all text-xs text-stone-600">{s.detail}</span>
+                  <span className="font-medium text-body">{s.label}</span>
+                  <span className="block break-all text-xs text-muted">{s.detail}</span>
                 </span>
               </li>
             ))}
@@ -97,7 +97,7 @@ export function VerifyIntegrity({ report }: { report: VerificationReport }) {
           <p className={`rounded-md border px-3 py-2 text-sm font-medium ${VERDICT_STYLE[result.verdict.tone]}`}>
             {result.verdict.text}
           </p>
-          <details className="text-xs text-stone-600">
+          <details className="text-xs text-muted">
             <summary className="cursor-pointer select-none">Check it yourself</summary>
             <p className="mt-2">
               Fetch <span className="font-mono">{API_URL}/api/reports/{report.reportId}</span>, drop{" "}

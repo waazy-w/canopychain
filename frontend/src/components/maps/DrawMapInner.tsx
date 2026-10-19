@@ -41,7 +41,7 @@ function DrawControls({ onChange }: { onChange: OnChange }) {
       editMode: true,
       removalMode: true,
     });
-    map.pm.setPathOptions({ color: "#4ade80", fillOpacity: 0.15 });
+    map.pm.setPathOptions({ color: "#34d399", fillOpacity: 0.15 });
 
     const emit = () => onChangeRef.current(current ? toPolygon(current) : null);
     const onCreate = (e: { layer: L.Layer }) => {

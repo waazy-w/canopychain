@@ -23,15 +23,15 @@ export function PipelineProgress({ startedAt, label }: { startedAt: number; labe
   const stage = [...STAGES].reverse().find(([s]) => elapsed >= s)![1];
   const pct = Math.min(95, Math.round((elapsed / 120) * 100));
   return (
-    <div className="rounded-lg border border-forest-200 bg-forest-50 p-4 text-sm" role="status" aria-live="polite">
-      <div className="flex items-center gap-2 font-medium text-forest-900">
+    <div className="rounded-lg border border-accent/30 bg-accent/10 p-4 text-sm" role="status" aria-live="polite">
+      <div className="flex items-center gap-2 font-medium text-ink">
         <Spinner /> {label} · {elapsed}s
       </div>
-      <p className="mt-1 text-stone-600">{stage}</p>
-      <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-forest-100">
-        <div className="h-full bg-forest-600 transition-all" style={{ width: `${pct}%` }} />
+      <p className="mt-1 text-muted">{stage}</p>
+      <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-accent/15">
+        <div className="h-full bg-accent transition-all" style={{ width: `${pct}%` }} />
       </div>
-      <p className="mt-2 text-xs text-stone-500">Satellite verification usually takes 30–120 seconds.</p>
+      <p className="mt-2 text-xs text-muted">Satellite verification usually takes 30–120 seconds.</p>
     </div>
   );
 }
