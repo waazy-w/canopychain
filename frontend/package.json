@@ -1,0 +1,40 @@
+{
+  "name": "canopychain-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "sync-contracts": "node scripts/sync-contracts.mjs",
+    "predev": "node scripts/sync-contracts.mjs",
+    "dev": "next dev",
+    "prebuild": "node scripts/sync-contracts.mjs",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "typecheck": "node scripts/sync-contracts.mjs && tsc --noEmit"
+  },
+  "dependencies": {
+    "@geoman-io/leaflet-geoman-free": "2.20.2",
+    "@rainbow-me/rainbowkit": "2.2.11",
+    "@tanstack/react-query": "5.104.4",
+    "@turf/area": "7.4.0",
+    "leaflet": "1.9.4",
+    "next": "16.4.2",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "react-leaflet": "5.0.0",
+    "viem": "2.57.7",
+    "wagmi": "2.19.5"
+  },
+  "devDependencies": {
+    "@tailwindcss/turbopack": "^4",
+    "@types/geojson": "7946.0.16",
+    "@types/leaflet": "1.9.22",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.4.2",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}
