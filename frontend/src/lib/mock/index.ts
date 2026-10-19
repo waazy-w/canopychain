@@ -7,7 +7,7 @@ import type {
   RegisterResponse,
   VerifyResponse,
 } from "../api/types";
-import { polygonAreaHa } from "../geo";
+import { currentVintage, polygonAreaHa } from "../geo";
 import { buildReport, initialProjects, summary, TCO2E_PER_HA } from "./data";
 
 // In-memory mock backend. State lives for the browser session (lost on reload).
@@ -27,10 +27,6 @@ function toSummary(p: ProjectDetail): ProjectSummary {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { reports, ...rest } = p;
   return rest;
-}
-
-function currentVintage() {
-  return new Date().getUTCFullYear();
 }
 
 export async function mockRequest<T>(method: "GET" | "POST", path: string, body?: unknown): Promise<T> {

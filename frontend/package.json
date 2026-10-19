@@ -17,7 +17,7 @@
     "@geoman-io/leaflet-geoman-free": "2.20.2",
     "@rainbow-me/rainbowkit": "2.2.11",
     "@tanstack/react-query": "5.104.4",
-    "@turf/area": "7.4.0",
+    "geographiclib-geodesic": "2.2.0",
     "leaflet": "1.9.4",
     "next": "16.4.2",
     "react": "19.3.0",
