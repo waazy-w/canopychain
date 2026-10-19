@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { buttonClass, secondaryButtonClass, shortHex } from "@/components/ui";
 import { IS_LOCAL_CHAIN, addressUrl } from "@/lib/config";
 import { CONTRACT_ADDRESS } from "@/lib/contract";
@@ -70,7 +70,7 @@ export default function Home() {
         </div>
 
         <div className="grid items-center gap-12 lg:grid-cols-[1.15fr_1fr]">
-          <div>
+          <div className="scrub-hero-text">
             <a
               href={CONTRACT_ADDRESS && !IS_LOCAL_CHAIN ? addressUrl(CONTRACT_ADDRESS) : undefined}
               target="_blank"
@@ -107,8 +107,8 @@ export default function Home() {
         </div>
 
         <dl className="mt-16 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-line bg-line lg:grid-cols-4">
-          {FACTS.map((f) => (
-            <div key={f.label} className="bg-surface/90 px-5 py-4">
+          {FACTS.map((f, i) => (
+            <div key={f.label} className="scrub-rise bg-surface/90 px-5 py-4" style={{ "--i": i } as CSSProperties}>
               <dt className="text-xs text-muted">{f.label}</dt>
               <dd className={`mt-1 text-xl font-semibold tracking-tight ${f.tone === "sat" ? "text-sat" : "text-ink"}`}>
                 {f.value}
@@ -120,8 +120,8 @@ export default function Home() {
 
       <section>
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">How it works</p>
-        <h2 className="mt-3 max-w-2xl text-3xl font-semibold tracking-tight text-ink">
-          From satellite pixels to retired credits, in six verifiable steps.
+        <h2 className="scrub-words mt-3 max-w-2xl text-3xl font-semibold tracking-tight text-ink">
+          <ScrubWords text="From satellite pixels to retired credits, in six verifiable steps." />
         </h2>
         <ol className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {STEPS.map((s, i) => {
@@ -129,7 +129,8 @@ export default function Home() {
             return (
               <li
                 key={s.title}
-                className={`group relative rounded-2xl border border-line bg-surface p-6 transition duration-200 hover:-translate-y-0.5 hover:bg-raised ${t.hover}`}
+                style={{ "--i": i % 3 } as CSSProperties}
+                className={`scrub-rise group relative rounded-2xl border border-line bg-surface p-6 transition duration-200 hover:-translate-y-0.5 hover:bg-raised ${t.hover}`}
               >
                 <div className="flex items-center justify-between">
                   <span className={`rounded-md border px-2 py-0.5 font-mono text-xs font-semibold ${t.badge}`}>
@@ -159,6 +160,15 @@ export default function Home() {
   );
 }
 
+/** Splits a heading into words that light up one after another as it scrolls through the viewport. */
+function ScrubWords({ text }: { text: string }) {
+  return text.split(" ").map((word, i) => (
+    <span key={i} className="scrub-word" style={{ "--i": i } as CSSProperties}>
+      {word}{" "}
+    </span>
+  ));
+}
+
 /** Hero report card built from the cached Sentinel-2 analysis of the Amazon demo forest (backend/demo_cache). */
 function ExampleReport() {
   const rows = [
@@ -166,7 +176,7 @@ function ExampleReport() {
     { label: "Mean NDVI", before: "0.84", after: "0.87" },
   ];
   return (
-    <div className="relative">
+    <div className="scrub-hero-card relative">
       <div aria-hidden className="absolute -inset-px rounded-2xl bg-gradient-to-b from-accent/30 via-line to-sat/20" />
       <div className="relative rounded-2xl bg-surface/95 p-5 shadow-2xl shadow-black/40 backdrop-blur">
         <div className="flex items-center justify-between">

@@ -37,6 +37,7 @@ export function Header() {
         </nav>
         <WalletButton />
       </div>
+      <div aria-hidden className="scroll-progress absolute inset-x-0 -bottom-px h-px bg-gradient-to-r from-accent to-sat" />
     </header>
   );
 }

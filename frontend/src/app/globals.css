@@ -69,6 +69,89 @@ body {
   }
 }
 
+/* Scroll-scrubbed motion: progress is tied to the scroll position, so it plays forward and rewinds with the
+   scrollbar. Browsers without scroll-driven animations, and reduced-motion users, get the static page.
+   Keyframes use `transform` so they don't clash with Tailwind's `translate`/`scale` hover utilities. */
+.scroll-progress {
+  transform: scaleX(0);
+  transform-origin: left;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    /* Thin accent bar under the header that fills as you scroll the page. */
+    .scroll-progress {
+      animation: scrub-grow linear both;
+      animation-timeline: scroll(root);
+    }
+
+    /* Cards and facts rise into place as they enter the viewport; --i staggers items in the same row. */
+    .scrub-rise {
+      animation: scrub-rise linear both;
+      animation-timeline: view();
+      animation-range: entry calc(var(--i, 0) * 12%) cover calc(28% + var(--i, 0) * 6%);
+    }
+
+    /* Heading words light up one by one as the heading crosses the viewport. */
+    .scrub-words {
+      view-timeline-name: --scrub-words;
+    }
+    .scrub-word {
+      animation: scrub-word linear both;
+      animation-timeline: --scrub-words;
+      animation-range: cover calc(12% + var(--i, 0) * 3%) cover calc(22% + var(--i, 0) * 3%);
+    }
+
+    /* Desktop hero: the copy drifts up and fades while the report card tilts back, as the page scrolls away. */
+    @media (min-width: 1024px) {
+      .scrub-hero-text,
+      .scrub-hero-card {
+        animation-timing-function: linear;
+        animation-fill-mode: both;
+        animation-timeline: scroll(root);
+        animation-range: 0 75vh;
+      }
+      .scrub-hero-text {
+        animation-name: scrub-hero-text;
+      }
+      .scrub-hero-card {
+        animation-name: scrub-hero-card;
+        transform-origin: 50% 100%;
+      }
+    }
+  }
+}
+
+@keyframes scrub-grow {
+  to {
+    transform: scaleX(1);
+  }
+}
+@keyframes scrub-rise {
+  from {
+    opacity: 0;
+    transform: translateY(48px) scale(0.96);
+  }
+}
+@keyframes scrub-word {
+  from {
+    opacity: 0.15;
+  }
+}
+@keyframes scrub-hero-text {
+  to {
+    opacity: 0.2;
+    transform: translateY(-64px);
+    filter: blur(3px);
+  }
+}
+@keyframes scrub-hero-card {
+  to {
+    opacity: 0.35;
+    transform: perspective(1200px) rotateX(18deg) translateY(-32px) scale(0.92);
+  }
+}
+
 /* Leaflet sits under the sticky header and RainbowKit modals. */
 .leaflet-container {
   z-index: 0;
