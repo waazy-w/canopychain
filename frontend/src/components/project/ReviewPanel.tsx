@@ -49,9 +49,13 @@ export function ReviewPanel({ project }: { project: ProjectDetail }) {
         </p>
       )}
       <p className="mt-3 text-xs text-muted">
-        {project.ownerSignature ? "Registration signed by the owner wallet. " : ""}
-        {review?.signature && review.signature !== "0x" ? "Review signed by the approver's wallet; " : ""}
-        methodology inputs are fixed at review and can&apos;t be changed by whoever runs the verification.
+        {[
+          project.ownerSignature && "Registration signed by the owner wallet.",
+          review?.signature && review.signature !== "0x" && "Review signed by the approver's wallet.",
+          "Methodology inputs are fixed at review and can't be changed by whoever runs the verification.",
+        ]
+          .filter(Boolean)
+          .join(" ")}
       </p>
     </Card>
   );

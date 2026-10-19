@@ -40,11 +40,11 @@ export default function RegistryPage() {
                 <tr>
                   <th className="py-2 pr-3">#</th>
                   <th className="py-2 pr-3">Project</th>
-                  <th className="py-2 pr-3">Area</th>
-                  <th className="py-2 pr-3">Owner</th>
+                  <th className="hidden py-2 pr-3 sm:table-cell">Area</th>
+                  <th className="hidden py-2 pr-3 md:table-cell">Owner</th>
                   <th className="py-2 pr-3">Latest report</th>
                   <th className="py-2">
-                    Credits <PrototypeBadge />
+                    Credits <span className="hidden sm:inline"><PrototypeBadge /></span>
                   </th>
                 </tr>
               </thead>
@@ -57,8 +57,8 @@ export default function RegistryPage() {
                         {p.name}
                       </Link>
                     </td>
-                    <td className="py-2 pr-3">{fmtHa(p.areaHa)}</td>
-                    <td className="py-2 pr-3">
+                    <td className="hidden py-2 pr-3 sm:table-cell">{fmtHa(p.areaHa)}</td>
+                    <td className="hidden py-2 pr-3 md:table-cell">
                       <AddressLink address={p.owner} />
                     </td>
                     <td className="py-2 pr-3">
