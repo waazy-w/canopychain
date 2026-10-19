@@ -25,7 +25,7 @@ from .methodology import FOREST_NDVI_THRESHOLD, LOSS_MIN_NDVI_DROP
 
 log = logging.getLogger(__name__)
 
-ANALYSIS_VERSION = "v1"
+ANALYSIS_VERSION = "v2"  # v2: NDVI preview colormap stretched over canopy values
 SIMULATED_LOSS_FRACTION = 0.15
 CLEARED_NDVI = 0.15  # bare soil after clearing
 PREVIEW_MAX_PX = 512
@@ -103,18 +103,32 @@ def simulate_deforestation(ndvi: np.ndarray, fraction: float = SIMULATED_LOSS_FR
     return out
 
 
+# NDVI → RGB stops: brown (bare/cleared) → tan → yellow-green → green → deep green. Half the stops sit above 0.65
+# because dense canopy spans only ~0.75–0.95; a linear ramp would paint a whole rainforest one flat green.
+NDVI_COLOR_STOPS = np.array(
+    [
+        (0.00, 140, 81, 10),
+        (0.20, 191, 129, 45),
+        (0.35, 223, 194, 125),
+        (0.50, 199, 215, 110),
+        (0.65, 120, 198, 121),
+        (0.75, 49, 163, 84),
+        (0.82, 26, 128, 64),
+        (0.88, 12, 94, 46),
+        (0.95, 4, 60, 30),
+    ]
+)
+
+
 def ndvi_png(ndvi: np.ndarray, polygon_mask: np.ndarray) -> bytes:
-    """NDVI colormap (red → yellow → green), transparent outside the polygon, grey where clouded."""
+    """NDVI colormap (brown → green, stretched over canopy values), transparent outside the polygon, grey where clouded."""
     h, w = ndvi.shape
     rgba = np.zeros((h, w, 4), dtype=np.uint8)
     valid = ~np.isnan(ndvi) & polygon_mask
-    v = np.clip(np.nan_to_num(ndvi, nan=0.0), 0.0, 0.8) / 0.8  # 0 → red, 0.5 → yellow, 1 → green
-    red = np.where(v < 0.5, 215, np.round(215 - (v - 0.5) * 2 * (215 - 26))).astype(np.uint8)
-    green = np.where(v < 0.5, np.round(48 + v * 2 * (200 - 48)), np.round(200 - (v - 0.5) * 2 * (200 - 150))).astype(
-        np.uint8
-    )
-    blue = np.where(v < 0.5, 39, np.round(39 + (v - 0.5) * 2 * (66 - 39))).astype(np.uint8)
-    rgba[..., 0], rgba[..., 1], rgba[..., 2] = red, green, blue
+    v = np.nan_to_num(ndvi, nan=0.0)
+    stops = NDVI_COLOR_STOPS
+    for channel in range(3):
+        rgba[..., channel] = np.round(np.interp(v, stops[:, 0], stops[:, channel + 1])).astype(np.uint8)
     rgba[valid, 3] = 255
     clouded = polygon_mask & ~valid
     rgba[clouded] = (180, 180, 180, 160)

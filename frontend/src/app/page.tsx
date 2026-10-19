@@ -169,11 +169,11 @@ function ScrubWords({ text }: { text: string }) {
   ));
 }
 
-/** Hero report card built from the cached Sentinel-2 analysis of the Amazon demo forest (backend/demo_cache). */
+/** Hero report card built from the cached Sentinel-2 analysis of the Danum Valley demo forest (backend/demo_cache). */
 function ExampleReport() {
   const rows = [
-    { label: "Forest cover", before: "1,022.0 ha", after: "1,024.7 ha" },
-    { label: "Mean NDVI", before: "0.84", after: "0.87" },
+    { label: "Forest cover", before: "1,012.8 ha", after: "1,002.4 ha" },
+    { label: "Mean NDVI", before: "0.89", after: "0.87" },
   ];
   return (
     <div className="scrub-hero-card relative">
@@ -182,7 +182,7 @@ function ExampleReport() {
         <div className="flex items-center justify-between">
           <div>
             <p className="text-xs text-muted">Verification report · example</p>
-            <p className="mt-0.5 font-semibold text-ink">Amazonas Rainforest Block</p>
+            <p className="mt-0.5 font-semibold text-ink">Danum Valley Forest, Borneo</p>
           </div>
           <span className="inline-flex items-center gap-1.5 rounded-full border border-accent/30 bg-accent/10 px-2.5 py-0.5 text-xs font-medium text-emerald-300">
             <span className="h-1.5 w-1.5 rounded-full bg-accent" />
@@ -194,8 +194,8 @@ function ExampleReport() {
           {["2025", "2026"].map((year) => (
             <div key={year} className="overflow-hidden rounded-xl border border-line">
               <img
-                src={`/landing/amazon-ndvi-${year}.png`}
-                alt={`NDVI of the Amazon demo forest, ${year}`}
+                src={`/landing/ndvi-${year}.png`}
+                alt={`NDVI of the Danum Valley demo forest, ${year}`}
                 className="h-24 w-full object-cover opacity-90"
               />
               <p className="flex justify-between bg-raised px-2.5 py-1.5 text-[11px] text-muted">
@@ -217,7 +217,7 @@ function ExampleReport() {
           ))}
           <div className="flex items-center justify-between py-2">
             <dt className="text-muted">Credits issued</dt>
-            <dd className="font-mono font-semibold text-accent">9,658 tCO2e</dd>
+            <dd className="font-mono font-semibold text-accent">9,395 tCO2e</dd>
           </div>
         </dl>
 
