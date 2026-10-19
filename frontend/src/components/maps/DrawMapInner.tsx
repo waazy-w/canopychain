@@ -7,7 +7,7 @@ import L from "leaflet";
 import { useEffect, useRef } from "react";
 import { MapContainer, useMap } from "react-leaflet";
 import type { GeoJSONPolygon } from "@/lib/api/types";
-import { SatelliteTiles } from "./SatelliteTiles";
+import { SatelliteTiles, WORLD_MAP_OPTIONS } from "./SatelliteTiles";
 
 type OnChange = (polygon: GeoJSONPolygon | null) => void;
 
@@ -77,7 +77,7 @@ export default function DrawMapInner({
   zoom?: number;
 }) {
   return (
-    <MapContainer center={center} zoom={zoom} className="h-full w-full">
+    <MapContainer center={center} zoom={zoom} {...WORLD_MAP_OPTIONS} className="h-full w-full">
       <SatelliteTiles />
       <DrawControls onChange={onChange} />
     </MapContainer>
