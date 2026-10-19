@@ -28,13 +28,13 @@ Tasks marked **(saaz)** need saaz personally (wallets, keys, recording, submitti
 - [x] Cache results for 2 or 3 demo forests so the live demo is fast and reliable
 
 ## Frontend: `frontend/`
-- [ ] Scaffold Next.js + Tailwind + wagmi/RainbowKit (Amoy) — feat/frontend
-- [ ] Mock data matching the report schema in `docs/api.md`
-- [ ] Register project page: draw a polygon on a Leaflet map → POST /api/projects
-- [ ] Project page: run verification, before/after NDVI images, report numbers, link to the on-chain transaction
-- [ ] Retire flow: retire credits from the wallet → certificate page that reads `getRetirement`
-- [ ] Public registry: projects plus a feed of issuance, retirement and reversal events read from the contract
-- [ ] Reversal state shown clearly (badge, buffer burned)
+- [x] Scaffold Next.js + Tailwind + wagmi/RainbowKit (Amoy) — feat/frontend
+- [x] Mock data matching the report schema in `docs/api.md`
+- [x] Register project page: draw a polygon on a Leaflet map → POST /api/projects
+- [x] Project page: run verification, before/after NDVI images, report numbers, link to the on-chain transaction
+- [x] Retire flow: retire credits from the wallet → certificate page that reads `getRetirement`
+- [x] Public registry: projects plus a feed of issuance, retirement and reversal events read from the contract
+- [x] Reversal state shown clearly (badge, buffer burned)
 
 ## Integration (Oct 22–23)
 - [ ] Full end-to-end run on Amoy: register → verify → mint → retire → reversal
