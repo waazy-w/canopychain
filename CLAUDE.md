@@ -36,6 +36,7 @@ Instructions for every Claude Code session on this project. saaz is the sole dev
 #              npm run deploy:amoy   (needs contracts/.env; writes shared/contracts.json)
 # frontend/    npm install · npm run dev
 # backend/     python -m venv .venv · pip install -r requirements.txt · uvicorn app.main:app --reload
+#              pytest · python -m app.seed_demo   (optional backend/.env enables the oracle)
 ```
 
 ## Layout

@@ -17,15 +17,15 @@ Tasks marked **(saaz)** need saaz personally (wallets, keys, recording, submitti
 - [ ] Deploy to Amoy and commit `shared/contracts.json` (needs `contracts/.env`)
 
 ## Backend: `backend/`
-- [ ] Scaffold FastAPI + requirements + CORS + JSON storage — feat/backend
-- [ ] Project endpoints: POST/GET /api/projects
-- [ ] Satellite pipeline: query Sentinel-2 L2A on Planetary Computer for a polygon and date, apply a cloud mask, compute NDVI, measure forest cover in ha
-- [ ] Baseline vs current comparison, then the tCO2e estimate, then the report JSON and canonical keccak256 hash
-- [ ] NDVI preview PNGs (baseline and current)
-- [ ] POST /verify and GET /reports endpoints
-- [ ] Oracle (web3.py): read `shared/contracts.json`, call registerProject and submitVerification, return txHash
-- [ ] POST /monitor with `simulateDeforestation`, then call flagReversal
-- [ ] Cache results for 2 or 3 demo forests so the live demo is fast and reliable
+- [x] Scaffold FastAPI + requirements + CORS + JSON storage — feat/backend
+- [x] Project endpoints: POST/GET /api/projects
+- [x] Satellite pipeline: query Sentinel-2 L2A on Planetary Computer for a polygon and date, apply a cloud mask, compute NDVI, measure forest cover in ha
+- [x] Baseline vs current comparison, then the tCO2e estimate, then the report JSON and canonical keccak256 hash
+- [x] NDVI preview PNGs (baseline and current)
+- [x] POST /verify and GET /reports endpoints
+- [x] Oracle (web3.py): read `shared/contracts.json`, call registerProject and submitVerification, return txHash
+- [x] POST /monitor with `simulateDeforestation`, then call flagReversal
+- [x] Cache results for 2 or 3 demo forests so the live demo is fast and reliable
 
 ## Frontend: `frontend/`
 - [ ] Scaffold Next.js + Tailwind + wagmi/RainbowKit (Amoy) — feat/frontend
