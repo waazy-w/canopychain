@@ -1,6 +1,7 @@
 import { keccak256, toBytes } from "viem";
 import type { GeoJSONPolygon, ProjectDetail, VerificationReport } from "../api/types";
 import { polygonAreaHa, round } from "../geo";
+import { computeReportHash } from "../reportHash";
 
 // Demo data used when the backend is unreachable. Shapes match docs/api.md exactly.
 
@@ -8,8 +9,9 @@ export const METHODOLOGY = "canopychain-prototype-v0 (NOT a certified methodolog
 export const TCO2E_PER_HA = 450;
 export const REGIONAL_LOSS_RATE_PCT = 2.1;
 
+/** Mock reports use the real canonical hash, so "Verify report integrity" works in mock mode too. */
 export function mockHash(report: Omit<VerificationReport, "reportHash">): string {
-  return keccak256(toBytes(JSON.stringify(report)));
+  return computeReportHash(report);
 }
 
 interface ReportInput {

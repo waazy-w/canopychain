@@ -37,6 +37,8 @@ export interface VerificationReport {
   methodology: string;
   imagery: Imagery;
   status: ReportStatus;
+  /** "monitoring" for re-checks (POST /monitor). Absent on mock reports. */
+  kind?: "verification" | "monitoring";
   createdAt: string;
   reportHash: string;
   // Present on verify/monitor responses, and on stored reports when the backend keeps them.
@@ -56,6 +58,7 @@ export type MonitorResponse = VerificationReport & OnChainResult & { lostCredits
 export interface ReportSummary {
   reportId: string;
   status: ReportStatus;
+  kind?: "verification" | "monitoring";
   creditsEstimated: number;
   vintage: number;
   txHash: string | null;

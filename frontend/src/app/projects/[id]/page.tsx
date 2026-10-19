@@ -50,7 +50,6 @@ export default function ProjectPage() {
   const report = project.reports.find((r) => r.reportId === selectedReportId) ?? project.reports[0];
   const reversed =
     onChainProject.data?.status === ProjectStatus.Reversed || project.latestReport?.status === "reversal_detected";
-  const onChainHash = report ? vintagesOnChain.rows.find((r) => r.vintage === report.vintage)?.issuance?.reportHash : undefined;
 
   return (
     <div className="space-y-6">
@@ -83,7 +82,7 @@ export default function ProjectPage() {
 
       {report ? (
         <div className="grid gap-6 lg:grid-cols-[1fr_380px]">
-          <ReportView report={report} onChainReportHash={onChainHash} />
+          <ReportView report={report} />
           <div className="space-y-6">
             <RetirePanel rows={vintagesOnChain.rows} />
             <Card title="Report history">

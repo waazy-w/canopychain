@@ -4,6 +4,7 @@ import { resolveAssetUrl } from "@/lib/api/client";
 import type { VerificationReport } from "@/lib/api/types";
 import { fmtCredits, fmtDate, fmtHa, fmtNum } from "@/lib/format";
 import { Badge, Card, Stat, TxLink, shortHex } from "../ui";
+import { VerifyIntegrity } from "./VerifyIntegrity";
 
 export function ReportStatusBadge({ status }: { status: VerificationReport["status"] }) {
   if (status === "verified") return <Badge tone="green">Verified</Badge>;
@@ -11,16 +12,8 @@ export function ReportStatusBadge({ status }: { status: VerificationReport["stat
   return <Badge tone="gray">Failed</Badge>;
 }
 
-export function ReportView({
-  report,
-  onChainReportHash,
-}: {
-  report: VerificationReport;
-  /** The report hash stored on-chain for this vintage, if it was issued. */
-  onChainReportHash?: string;
-}) {
+export function ReportView({ report }: { report: VerificationReport }) {
   const reversal = report.status === "reversal_detected";
-  const hashMatches = onChainReportHash?.toLowerCase() === report.reportHash.toLowerCase();
   return (
     <Card
       title={
@@ -44,7 +37,7 @@ export function ReportView({
         <Stat label="Project area" value={fmtHa(report.areaHa)} />
         <Stat label="Baseline forest" value={fmtHa(report.baseline.forestCoverHa)} />
         <Stat label="Current forest" value={fmtHa(report.current.forestCoverHa)} />
-        <Stat label="Mean NDVI" value={`${fmtNum(report.baseline.meanNdvi)} → ${fmtNum(report.current.meanNdvi)}`} />
+        <Stat label="Mean NDVI" value={`${report.baseline.meanNdvi.toFixed(2)} → ${report.current.meanNdvi.toFixed(2)}`} />
         <Stat label="Deforested" value={<span className={reversal ? "text-red-700" : ""}>{fmtHa(report.deforestedHa)}</span>} />
         <Stat label="Avoided loss" value={fmtHa(report.avoidedLossHa)} />
         <Stat label="Regional loss rate" value={`${fmtNum(report.regionalBaselineLossRatePct)}%/yr`} />
@@ -58,15 +51,7 @@ export function ReportView({
 
       <div className="mt-5 space-y-1 border-t border-stone-100 pt-4 text-xs text-stone-600">
         <p>
-          Report hash: <span className="font-mono">{shortHex(report.reportHash, 10)}</span>{" "}
-          {onChainReportHash &&
-            (hashMatches ? (
-              <span className="font-medium text-forest-700">✓ matches the on-chain attestation</span>
-            ) : (
-              report.status === "verified" && (
-                <span className="font-medium text-amber-700">differs from the on-chain attestation for this vintage</span>
-              )
-            ))}
+          Report hash: <span className="font-mono">{shortHex(report.reportHash, 10)}</span>
         </p>
         {report.txHash && (
           <p>
@@ -75,6 +60,7 @@ export function ReportView({
         )}
         <p>Methodology: {report.methodology}</p>
       </div>
+      <VerifyIntegrity key={report.reportId} report={report} />
     </Card>
   );
 }
