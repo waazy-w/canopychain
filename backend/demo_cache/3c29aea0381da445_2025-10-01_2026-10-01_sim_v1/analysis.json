@@ -1,0 +1,35 @@
+{
+  "baseline": {
+    "date": "2025-10-11",
+    "targetDate": "2025-10-01",
+    "forestCoverHa": 1012.78,
+    "meanNdvi": 0.887,
+    "validCoveragePct": 100.0,
+    "sceneIds": [
+      "S2C_MSIL2A_20251011T022641_R046_T50NNL_20251011T061121"
+    ]
+  },
+  "current": {
+    "date": "2026-10-01",
+    "targetDate": "2026-10-01",
+    "forestCoverHa": 852.05,
+    "meanNdvi": 0.762,
+    "validCoveragePct": 98.7,
+    "sceneIds": [
+      "S2B_MSIL2A_20261001T022529_R046_T50NNL_20261001T043628"
+    ]
+  },
+  "deforestedHa": 150.69,
+  "pixelSizeM": 10.0,
+  "previewBounds": [
+    [
+      4.95044,
+      117.775531
+    ],
+    [
+      4.979511,
+      117.804518
+    ]
+  ],
+  "simulated": true
+}
