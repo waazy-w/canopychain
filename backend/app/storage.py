@@ -105,3 +105,42 @@ def reports_for_project(project_id: int) -> list[dict]:
 
 def _safe_id(report_id: str) -> bool:
     return report_id.startswith("rep_") and all(c.isalnum() or c in "_-" for c in report_id)
+
+
+# -- seed snapshot ---------------------------------------------------------------
+# Free hosts (e.g. Render's free tier) wipe the disk on every restart. The backend can start from a
+# committed snapshot of projects and reports (CANOPY_SEED_DIR), so on-chain report URIs keep resolving.
+
+_SNAPSHOT_ITEMS = ("projects.json", "reports")
+
+
+def restore_seed(seed_dir: Path) -> bool:
+    """Copies the snapshot into an empty data dir. Never overwrites existing data. Returns True if it copied."""
+    import shutil
+
+    with _lock:
+        if _projects_file().exists() or not (seed_dir / "projects.json").exists():
+            return False
+        for item in _SNAPSHOT_ITEMS:
+            src = seed_dir / item
+            if src.is_dir():
+                shutil.copytree(src, config.data_dir() / item, dirs_exist_ok=True)
+            elif src.exists():
+                config.data_dir().mkdir(parents=True, exist_ok=True)
+                shutil.copy2(src, config.data_dir() / item)
+        return True
+
+
+def write_snapshot(seed_dir: Path) -> None:
+    """Replaces seed_dir with the current projects and reports (caches are left out)."""
+    import shutil
+
+    with _lock:
+        shutil.rmtree(seed_dir, ignore_errors=True)
+        seed_dir.mkdir(parents=True)
+        for item in _SNAPSHOT_ITEMS:
+            src = config.data_dir() / item
+            if src.is_dir():
+                shutil.copytree(src, seed_dir / item)
+            elif src.exists():
+                shutil.copy2(src, seed_dir / item)

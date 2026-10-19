@@ -19,6 +19,9 @@ log = logging.getLogger("canopychain")
 
 app = FastAPI(title="CanopyChain API", version="0.4")
 
+if config.seed_dir() and storage.restore_seed(config.seed_dir()):
+    log.info("restored projects and reports from %s", config.seed_dir())
+
 
 @app.middleware("http")
 async def _catch_unexpected(request: Request, call_next):

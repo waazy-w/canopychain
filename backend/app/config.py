@@ -29,7 +29,7 @@ def public_base_url() -> str:
 
 
 def amoy_rpc_url() -> str:
-    return os.environ.get("AMOY_RPC_URL", "https://rpc-amoy.polygon.technology")
+    return os.environ.get("AMOY_RPC_URL", "https://polygon-amoy-bor-rpc.publicnode.com")
 
 
 def oracle_private_key() -> str | None:
@@ -42,6 +42,12 @@ def approver_addresses() -> set[str]:
 
     raw = os.environ.get("CANOPY_APPROVERS", "")
     return {Web3.to_checksum_address(a.strip()) for a in raw.split(",") if Web3.is_address(a.strip())}
+
+
+def seed_dir() -> Path | None:
+    """Snapshot to restore into an empty data dir at startup (see storage.restore_seed). Relative to backend/."""
+    raw = os.environ.get("CANOPY_SEED_DIR")
+    return (BACKEND_DIR / raw) if raw else None
 
 
 def demo_controls_enabled() -> bool:

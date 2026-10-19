@@ -21,7 +21,7 @@ All are optional. Put them in `frontend/.env.local` (gitignored).
 | Variable | Default | Purpose |
 |---|---|---|
 | `NEXT_PUBLIC_API_URL` | `http://localhost:8000` | Backend base URL (`docs/api.md` §2) |
-| `NEXT_PUBLIC_AMOY_RPC_URL` | `https://rpc-amoy.polygon.technology` | Polygon Amoy RPC for reads and event logs |
+| `NEXT_PUBLIC_AMOY_RPC_URL` | `https://polygon-amoy-bor-rpc.publicnode.com` | Polygon Amoy RPC for reads and event logs |
 | `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` | _(empty)_ | Enables RainbowKit's full wallet list. Without it, only injected browser wallets (MetaMask) are offered |
 | `NEXT_PUBLIC_CHAIN` | _(empty = Amoy)_ | `local` runs against a Hardhat node (chain 31337) using `contracts/deployments/local.json` instead of `shared/contracts.json` |
 | `NEXT_PUBLIC_LOCAL_RPC_URL` | `http://127.0.0.1:8545` | RPC for `NEXT_PUBLIC_CHAIN=local` |

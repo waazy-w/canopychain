@@ -1,0 +1,27 @@
+# Render blueprint for the CanopyChain backend (FastAPI). Setup steps: docs/deploy.md.
+# Secrets marked `sync: false` are entered in the Render dashboard, never committed.
+services:
+  - type: web
+    name: canopychain-api
+    runtime: python
+    plan: free
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.8
+      - key: AMOY_RPC_URL
+        value: https://polygon-amoy-bor-rpc.publicnode.com
+      # The free plan's disk is wiped on restart; start from the committed demo snapshot.
+      - key: CANOPY_SEED_DIR
+        value: seed_state
+      - key: ORACLE_PRIVATE_KEY
+        sync: false
+      # https://<this service>.onrender.com, used in the on-chain metadata and report URIs.
+      - key: PUBLIC_BASE_URL
+        sync: false
+      # https://<your Vercel app>.vercel.app (comma-separate several origins).
+      - key: CANOPY_CORS_ORIGINS
+        sync: false

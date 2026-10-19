@@ -25,7 +25,7 @@ Without `.env` the API runs fully off-chain: reports are produced and stored, an
 | Variable | Required | Meaning |
 |---|---|---|
 | `ORACLE_PRIVATE_KEY` | for on-chain | Private key of the oracle wallet (testnet only, holds nothing of value). Its address must be the `ORACLE_ADDRESS` the contract was deployed with. |
-| `AMOY_RPC_URL` | no | RPC endpoint. Default `https://rpc-amoy.polygon.technology`. |
+| `AMOY_RPC_URL` | no | RPC endpoint. Default `https://polygon-amoy-bor-rpc.publicnode.com`. |
 | `PUBLIC_BASE_URL` | no | Base URL used in on-chain `metadataURI` / `reportURI`. Default `http://localhost:8000`. |
 | `CONTRACTS_JSON` | no | Path to the deployment file. Default `../shared/contracts.json` (written by `npm run deploy:amoy` in `contracts/`). |
 | `CANOPY_DATA_DIR` | no | Storage directory. Default `backend/data/`. |

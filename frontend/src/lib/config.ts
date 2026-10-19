@@ -6,7 +6,7 @@ export const WALLETCONNECT_PROJECT_ID = process.env.NEXT_PUBLIC_WALLETCONNECT_PR
 export const IS_LOCAL_CHAIN = process.env.NEXT_PUBLIC_CHAIN === "local";
 export const RPC_URL = IS_LOCAL_CHAIN
   ? process.env.NEXT_PUBLIC_LOCAL_RPC_URL || "http://127.0.0.1:8545"
-  : process.env.NEXT_PUBLIC_AMOY_RPC_URL || "https://rpc-amoy.polygon.technology";
+  : process.env.NEXT_PUBLIC_AMOY_RPC_URL || "https://polygon-amoy-bor-rpc.publicnode.com";
 
 /** Block explorer base URL; empty on the local chain, where there is none. */
 export const EXPLORER_URL = IS_LOCAL_CHAIN ? "" : "https://amoy.polygonscan.com";
