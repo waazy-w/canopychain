@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-Shared instructions for every Claude Code session on this project. Two teammates work on this repo at the same time, each with their own Claude Code. Keep this file accurate. If you change the stack, commands or ownership, update it in the same PR.
+Instructions for every Claude Code session on this project. saaz is the sole developer and owns every area of the repo; Claude Code builds most of it. Keep this file accurate. If you change the stack, commands or layout, update it in the same PR.
 
 ## Project: CanopyChain
 
@@ -31,34 +31,32 @@ Shared instructions for every Claude Code session on this project. Two teammates
 
 ## Commands
 
-TODO: each owner fills in their section after scaffolding.
 ```
-# contracts/   npm install · npx hardhat test · npx hardhat ignition deploy ... --network amoy
+# contracts/   npm install · npx hardhat test · npx hardhat coverage
+#              npm run deploy:amoy   (needs contracts/.env; writes shared/contracts.json)
 # frontend/    npm install · npm run dev
 # backend/     python -m venv .venv · pip install -r requirements.txt · uvicorn app.main:app --reload
 ```
 
-## Ownership: who works where
+## Layout
 
-Stay inside your own area. If you need to change something in your teammate's area, or a shared file, say so first.
+| Area | Paths |
+|------|-------|
+| Smart contracts, deployment, security doc | `contracts/` |
+| Frontend dApp (wallet, map, registry, retire) | `frontend/` |
+| Verification engine (satellite, NDVI, tCO2e) | `backend/` |
+| Oracle service (writes attestations on-chain) | `backend/app/oracle/` |
+| Docs and project files | `docs/`, `CLAUDE.md`, `README.md`, `TASKS.md`, root config |
 
-| Area | Owner | Paths |
-|------|-------|-------|
-| Smart contracts, deployment, security doc | **Teammate A (saaz)** | `contracts/` |
-| Frontend dApp (wallet, map, registry, retire) | **Teammate A (saaz)** | `frontend/` |
-| Verification engine (satellite, NDVI, tCO2e) | **Teammate B** | `backend/` |
-| Oracle service (writes attestations on-chain) | **Teammate B** | `backend/app/oracle/` |
-| Shared: coordinate before editing | both | `docs/`, `CLAUDE.md`, `README.md`, `TASKS.md`, root config |
+**How the parts connect:**
+- Contracts → backend/frontend: each deploy writes the ABI and address to `shared/contracts.json`. The oracle and the frontend read them from there.
+- Backend → frontend: the backend serves the REST API in `docs/api.md`. The frontend falls back to mock JSON with the same schemas when the backend is down.
 
-**Hand-off points:**
-- A → B: after each deploy, commit the ABI and address to `shared/contracts.json`. The backend oracle reads them from there.
-- B → A: the backend serves the REST API in `docs/api.md`. Until it's live, the frontend uses mock JSON that matches the same schemas.
-
-## Contract between parts
+## Interfaces between parts
 
 `docs/api.md` is the source of truth for the REST API, the verification report schema, and the smart contract interface (functions and events).
-- Build against it. Use mocks until the real thing exists.
-- If you change it, update `docs/api.md` in the **same PR** and tell your teammate.
+- Build against it.
+- If you change an interface, update `docs/api.md` in the **same PR**.
 
 ## Git workflow
 

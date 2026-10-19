@@ -1,49 +1,51 @@
 # Tasks: CanopyChain
 
 Deadline **Oct 25, 23:59 UTC**. Feature freeze **Oct 24, 12:00 UTC**.
-Format: `- [ ] Task (owner) — branch`. Tick tasks off when they're merged.
+Format: `- [ ] Task — branch`. Tick tasks off in the PR that completes them.
+Tasks marked **(saaz)** need saaz personally (wallets, keys, recording, submitting). Claude Code does the rest.
 
-## Day 1 (Oct 19): kick-off, together
-- [ ] Both read CLAUDE.md and docs/api.md, and agree on contract v0 (A + B)
-- [ ] Teammate B accepts the GitHub invite and clones the repo (B)
-- [ ] Each person gets Amoy test POL from a faucet. Create an oracle wallet. (A + B)
+## Setup (saaz)
+- [x] Read CLAUDE.md and docs/api.md, agree on contract v0
+- [ ] Create a deployer wallet and a separate oracle wallet, get Amoy test POL from a faucet (saaz)
+- [ ] Fill in `contracts/.env` and `backend/.env` (saaz)
 
-## Teammate A (saaz): `contracts/` + `frontend/`
-**Contracts**
-- [x] Scaffold Hardhat (TS) + OpenZeppelin in `contracts/` (A) — feat/contracts-scaffold
-- [x] `CanopyCredits.sol`: registerProject, submitVerification (90/10 buffer, no double verification), retire, flagReversal, views, events (A) — feat/canopy-credits
-- [x] Tests: happy paths, access control, double verification, retiring more than the balance, reversal larger than the buffer (A)
-- [ ] Deploy script for Amoy. Write the ABI and address to `shared/contracts.json`. Verify on Polygonscan. (A) — **by Oct 20 evening, so B can integrate**
-**Frontend**
-- [ ] Scaffold Next.js + Tailwind + wagmi/RainbowKit (Amoy) (A) — feat/frontend-scaffold
-- [ ] Mock data matching the report schema in `docs/api.md` (A)
-- [ ] Register project page: draw a polygon on a Leaflet map → POST /api/projects (A)
-- [ ] Project page: run verification, before/after NDVI images, report numbers, link to the on-chain transaction (A)
-- [ ] Retire flow: retire credits from the wallet → certificate page that reads `getRetirement` (A)
-- [ ] Public registry: projects plus a feed of issuance, retirement and reversal events read from the contract (A)
-- [ ] Reversal state shown clearly (badge, buffer burned) (A)
+## Contracts: `contracts/`
+- [x] Scaffold Hardhat (TS) + OpenZeppelin in `contracts/` — feat/canopy-credits
+- [x] `CanopyCredits.sol`: registerProject, submitVerification (90/10 buffer, no double verification), retire, flagReversal, views, events — feat/canopy-credits
+- [x] Tests: happy paths, access control, double verification, retiring more than the balance, reversal larger than the buffer — feat/canopy-credits
+- [x] Deploy script for Amoy that writes the ABI and address to `shared/contracts.json` and verifies on Polygonscan — feat/deploy-amoy
+- [ ] Deploy to Amoy and commit `shared/contracts.json` (needs `contracts/.env`)
 
-## Teammate B: `backend/`
-- [ ] Scaffold FastAPI + requirements + CORS + SQLite or JSON storage (B) — feat/backend-scaffold
-- [ ] Project endpoints: POST/GET /api/projects (B)
-- [ ] Satellite pipeline: query Sentinel-2 L2A on Planetary Computer for a polygon and date, apply a cloud mask, compute NDVI, measure forest cover in ha (B) — feat/ndvi-pipeline
-- [ ] Baseline vs current comparison, then the tCO2e estimate, then the report JSON and canonical keccak256 hash (B)
-- [ ] NDVI preview PNGs (baseline and current) (B)
-- [ ] POST /verify and GET /reports endpoints (B)
-- [ ] Oracle (web3.py): read `shared/contracts.json`, call registerProject and submitVerification, return txHash (B) — feat/oracle
-- [ ] POST /monitor with `simulateDeforestation`, then call flagReversal (B)
-- [ ] Cache results for 2 or 3 demo forests so the live demo is fast and reliable (B)
+## Backend: `backend/`
+- [ ] Scaffold FastAPI + requirements + CORS + JSON storage — feat/backend
+- [ ] Project endpoints: POST/GET /api/projects
+- [ ] Satellite pipeline: query Sentinel-2 L2A on Planetary Computer for a polygon and date, apply a cloud mask, compute NDVI, measure forest cover in ha
+- [ ] Baseline vs current comparison, then the tCO2e estimate, then the report JSON and canonical keccak256 hash
+- [ ] NDVI preview PNGs (baseline and current)
+- [ ] POST /verify and GET /reports endpoints
+- [ ] Oracle (web3.py): read `shared/contracts.json`, call registerProject and submitVerification, return txHash
+- [ ] POST /monitor with `simulateDeforestation`, then call flagReversal
+- [ ] Cache results for 2 or 3 demo forests so the live demo is fast and reliable
 
-## Integration (Oct 22–23, together)
-- [ ] Full end-to-end run on Amoy: register → verify → mint → retire → reversal (A + B)
-- [ ] Fix integration bugs. Freeze the contract interface. (A + B)
+## Frontend: `frontend/`
+- [ ] Scaffold Next.js + Tailwind + wagmi/RainbowKit (Amoy) — feat/frontend
+- [ ] Mock data matching the report schema in `docs/api.md`
+- [ ] Register project page: draw a polygon on a Leaflet map → POST /api/projects
+- [ ] Project page: run verification, before/after NDVI images, report numbers, link to the on-chain transaction
+- [ ] Retire flow: retire credits from the wallet → certificate page that reads `getRetirement`
+- [ ] Public registry: projects plus a feed of issuance, retirement and reversal events read from the contract
+- [ ] Reversal state shown clearly (badge, buffer burned)
+
+## Integration (Oct 22–23)
+- [ ] Full end-to-end run on Amoy: register → verify → mint → retire → reversal
+- [ ] Fix integration bugs. Freeze the contract interface.
 
 ## Submission deliverables (Oct 23–25)
-- [ ] Architecture diagram `docs/architecture.png` (A)
-- [ ] Security & data integrity assessment `docs/security.md`: roles, oracle trust, double counting, reentrancy, report hashing (A)
-- [ ] Climate impact assessment and carbon reduction projections `docs/impact.md` (B)
-- [ ] Problem and solution overview, at most 2 pages `docs/overview.md` (B)
-- [ ] Implementation & adoption strategy + scalability roadmap `docs/roadmap.md` (B)
-- [ ] README: setup, run, deployed address, screenshots (A + B)
-- [ ] 3-minute demo video (A + B)
-- [ ] Devpost submission, done before Oct 25 18:00 UTC to leave a buffer (A + B)
+- [ ] Architecture diagram `docs/architecture.png`
+- [ ] Security & data integrity assessment `docs/security.md`: roles, oracle trust, double counting, reentrancy, report hashing
+- [ ] Climate impact assessment and carbon reduction projections `docs/impact.md`
+- [ ] Problem and solution overview, at most 2 pages `docs/overview.md`
+- [ ] Implementation & adoption strategy + scalability roadmap `docs/roadmap.md`
+- [ ] README: setup, run, deployed address, screenshots
+- [ ] 3-minute demo video (saaz)
+- [ ] Devpost submission, done before Oct 25 18:00 UTC to leave a buffer; update the team list there too (saaz)

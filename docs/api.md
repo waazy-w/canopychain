@@ -1,6 +1,6 @@
 # API / Data Contract (v0)
 
-This is the source of truth for everything shared between the frontend/contracts (A) and the backend (B). If you change it, change it in the same PR as the code and tell your teammate.
+This is the source of truth for the interfaces between the contracts, the frontend and the backend. If you change one, change this file in the same PR as the code.
 
 Backend base URL (dev): `http://localhost:8000`
 
@@ -42,7 +42,7 @@ Prototype methodology: `credits = avoidedLossHa × tco2ePerHa`. Avoided loss is 
 
 ---
 
-## 2. REST API (backend, owner B)
+## 2. REST API (backend)
 
 | Method | Path | Purpose |
 |---|---|---|
@@ -59,7 +59,7 @@ CORS: allow `http://localhost:3000`.
 
 ---
 
-## 3. Smart contract interface (owner A)
+## 3. Smart contract interface
 
 The ABI and deployed address live in `shared/contracts.json`:
 

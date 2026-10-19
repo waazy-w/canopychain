@@ -27,5 +27,4 @@ docs/        API contract, architecture, security, impact docs
 TODO: filled in by each owner. Copy `.env.example` to `.env` first.
 
 ## Team
-- saaz: contracts & frontend
-- TODO: verification engine & oracle
+- saaz: everything (contracts, frontend, verification engine, oracle)
