@@ -15,6 +15,7 @@ from typing import Any
 from eth_hash.auto import keccak
 from web3 import Web3
 from web3.exceptions import ContractLogicError
+from web3.middleware import ExtraDataToPOAMiddleware
 
 from .. import config
 
@@ -87,6 +88,8 @@ class Oracle:
     def w3(self) -> Web3:
         if self._w3 is None:
             self._w3 = Web3(Web3.HTTPProvider(config.amoy_rpc_url(), request_kwargs={"timeout": 30}))
+            # Polygon blocks carry 97+ bytes of extraData, which web3.py rejects without this.
+            self._w3.middleware_onion.inject(ExtraDataToPOAMiddleware, layer=0)
         return self._w3
 
     @property
