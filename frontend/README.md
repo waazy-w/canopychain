@@ -42,7 +42,7 @@ Running `npm run typecheck` or `npm run build` re-syncs `src/generated/contracts
 
 ## Browser end-to-end test
 
-With the three services from "Running everything locally" up: `npx playwright install chromium` (once), then `npm run e2e`. It drives a headless browser through connect wallet → draw and register a forest → verify → verify report integrity → retire → certificate → simulate deforestation → integrity of the reversal → registry, with a test wallet backed by Hardhat account #2. It fails on any step or browser console error and saves screenshots to `e2e/shots/`.
+With the three services from "Running everything locally" up: `npx playwright install chromium` (once), then `npm run e2e`. It drives a headless browser through connect wallet → draw and register a forest → verify → verify report integrity → retire → certificate → simulate deforestation → integrity of the reversal → registry, with a test wallet backed by Hardhat account #2. It also checks that the register form's area matches the area the backend stores, and that "Run verification" locks once the vintage is verified or the project is reversed. It fails on any step or browser console error and saves screenshots to `e2e/shots/`.
 
 ## Behaviour without the backend or the contract
 

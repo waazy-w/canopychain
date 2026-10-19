@@ -10,7 +10,16 @@ import { PipelineProgress } from "./PipelineProgress";
 
 type Result = { kind: "verify"; data: VerifyResponse } | { kind: "monitor"; data: MonitorResponse };
 
-export function VerifyActions({ projectId, hasVerifiedReport }: { projectId: number; hasVerifiedReport: boolean }) {
+export function VerifyActions({
+  projectId,
+  hasVerifiedReport,
+  verifyBlockedReason,
+}: {
+  projectId: number;
+  hasVerifiedReport: boolean;
+  /** Set when the backend would refuse a new verification (vintage already verified, or project reversed). */
+  verifyBlockedReason: string | null;
+}) {
   const queryClient = useQueryClient();
   const [startedAt, setStartedAt] = useState(0);
   const [result, setResult] = useState<Result | null>(null);
@@ -41,7 +50,13 @@ export function VerifyActions({ projectId, hasVerifiedReport }: { projectId: num
   return (
     <Card title="Verification & monitoring">
       <div className="flex flex-wrap gap-2">
-        <button type="button" className={buttonClass} disabled={busy} onClick={() => start(() => verify.mutate())}>
+        <button
+          type="button"
+          className={buttonClass}
+          disabled={busy || verifyBlockedReason !== null}
+          onClick={() => start(() => verify.mutate())}
+          title={verifyBlockedReason ?? undefined}
+        >
           Run verification
         </button>
         <button
@@ -63,6 +78,7 @@ export function VerifyActions({ projectId, hasVerifiedReport }: { projectId: num
           Simulate deforestation
         </button>
       </div>
+      {verifyBlockedReason && <p className="mt-2 text-sm text-stone-600">{verifyBlockedReason}</p>}
       <p className="mt-2 text-xs text-stone-500">
         &quot;Simulate deforestation&quot; is a demo control: the backend injects forest loss into the current scene and
         the oracle flags a reversal on-chain.

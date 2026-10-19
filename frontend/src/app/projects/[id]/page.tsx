@@ -12,9 +12,11 @@ import { VerifyActions } from "@/components/project/VerifyActions";
 import { AddressLink, Badge, Card, ErrorBox, Notice, Spinner } from "@/components/ui";
 import { ApiError } from "@/lib/api/errors";
 import { api } from "@/lib/api/client";
+import { useMockMode } from "@/lib/api/mode";
 import { ProjectStatus } from "@/lib/contract";
 import { useOnChainProject, useVintagesOnChain } from "@/lib/contract/hooks";
 import { errorMessage, fmtCredits, fmtDate, fmtHa } from "@/lib/format";
+import { currentVintage } from "@/lib/geo";
 
 export default function ProjectPage() {
   const params = useParams<{ id: string }>();
@@ -34,6 +36,7 @@ export default function ProjectPage() {
   const vintagesOnChain = useVintagesOnChain(validId ? projectId : undefined, vintages);
 
   const [selectedReportId, setSelectedReportId] = useState<string | null>(null);
+  const mock = useMockMode();
 
   if (!validId) return <ErrorBox>Invalid project id.</ErrorBox>;
   if (projectQuery.isLoading) {
@@ -50,6 +53,18 @@ export default function ProjectPage() {
   const report = project.reports.find((r) => r.reportId === selectedReportId) ?? project.reports[0];
   const reversed =
     onChainProject.data?.status === ProjectStatus.Reversed || project.latestReport?.status === "reversal_detected";
+
+  // Mirrors the backend's 409 rule: one verification per vintage. A verification that never reached
+  // the chain can be retried once the oracle is live, so only an on-chain one (or any, in mock mode) blocks.
+  const vintage = currentVintage();
+  const verifiedThisVintage = project.reports.some(
+    (r) => r.kind !== "monitoring" && r.status === "verified" && r.vintage === vintage && (r.txHash || mock),
+  );
+  const verifyBlockedReason = reversed
+    ? "This project was flagged for a reversal, so it can't be issued new credits."
+    : verifiedThisVintage
+      ? `Already verified for vintage ${vintage}. Use "Re-check forest" to monitor it; the next vintage opens in ${vintage + 1}.`
+      : null;
 
   return (
     <div className="space-y-6">
@@ -78,7 +93,11 @@ export default function ProjectPage() {
         <OnChainPanel project={onChainProject} rows={vintagesOnChain.rows} loadingRows={vintagesOnChain.isLoading} />
       </div>
 
-      <VerifyActions projectId={project.projectId} hasVerifiedReport={project.reports.some((r) => r.status === "verified")} />
+      <VerifyActions
+        projectId={project.projectId}
+        hasVerifiedReport={project.reports.some((r) => r.status === "verified")}
+        verifyBlockedReason={verifyBlockedReason}
+      />
 
       {report ? (
         <div className="grid gap-6 lg:grid-cols-[1fr_380px]">

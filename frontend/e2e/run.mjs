@@ -110,6 +110,11 @@ try {
   await page.waitForURL(/\/projects\/\d+/, { timeout: 30_000 });
   const projectUrl = page.url();
   note(`registered → ${projectUrl}`);
+  // The form's area and the backend's stored area use the same WGS84 geodesic, so they must match.
+  const formHa = areaText.match(/([\d,.]+) ha/)?.[1];
+  const storedHa = (await page.getByText(/ ha · owner/).first().innerText()).match(/([\d,.]+) ha/)?.[1];
+  note(`area: form ${formHa} ha, backend ${storedHa} ha`);
+  if (!formHa || formHa !== storedHa) throw new Error(`area mismatch: form ${formHa} vs backend ${storedHa}`);
 
   // 3. Run verification (live Planetary Computer fetch)
   const t0 = Date.now();
@@ -118,6 +123,9 @@ try {
   note(`verification finished in ${((Date.now() - t0) / 1000).toFixed(1)} s`);
   await page.waitForTimeout(2500); // let on-chain reads refresh
   await shot("03-verified");
+  const verifyBtn = page.getByRole("button", { name: "Run verification" });
+  if (!(await verifyBtn.isDisabled())) throw new Error("Run verification is still enabled after verifying");
+  note(`run verification disabled: ${await page.getByText(/Already verified for vintage/).first().innerText()}`);
 
   // 4. Verify report integrity
   await page.getByRole("button", { name: "Verify this report" }).click();
@@ -144,6 +152,7 @@ try {
   await page.getByText(/Reversal (flagged|detected)/).first().waitFor({ timeout: 240_000 });
   await page.waitForTimeout(2500);
   await shot("06-reversal");
+  if (!(await verifyBtn.isDisabled())) throw new Error("Run verification is enabled on a reversed project");
   await page.getByRole("button", { name: "Verify this report" }).click();
   const verdict2 = page.locator("p.rounded-md.border").filter({ hasText: /Verified|Mismatch|intact|changed|Check failed/ });
   await verdict2.first().waitFor({ timeout: 30_000 });
