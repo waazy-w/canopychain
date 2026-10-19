@@ -5,3 +5,4 @@ typechain-types/
 coverage/
 coverage.json
 ignition/deployments/chain-31337/
+deployments/local.json

@@ -20,9 +20,11 @@ const config: HardhatUserConfig = {
       accounts: DEPLOYER_PRIVATE_KEY ? [DEPLOYER_PRIVATE_KEY] : [],
     },
   },
+  // Etherscan API V2: one etherscan.io key verifies on every chain, Polygon Amoy included.
   etherscan: {
-    apiKey: process.env.POLYGONSCAN_API_KEY ?? "",
+    apiKey: process.env.ETHERSCAN_API_KEY ?? "",
   },
+  sourcify: { enabled: false },
 };
 
 export default config;

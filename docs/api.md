@@ -64,8 +64,10 @@ CORS: allow `http://localhost:3000`.
 The ABI and deployed address live in `shared/contracts.json`:
 
 ```json
-{ "chainId": 80002, "CanopyCredits": { "address": "0x…", "abi": [] } }
+{ "chainId": 80002, "CanopyCredits": { "address": "0x…", "deployBlock": 0, "deployTx": "0x…", "abi": [] } }
 ```
+
+Written by `contracts/scripts/deploy.ts` (`npm run deploy:amoy`). Use `deployBlock` as the `fromBlock` when reading events.
 
 ### `CanopyCredits` (ERC-1155 + AccessControl)
 
@@ -117,3 +119,4 @@ Transfers and trading use standard ERC-1155 `safeTransferFrom`. A marketplace is
 ## Changelog
 - v0 (Oct 19): initial draft
 - v0.1 (Oct 19): contract section matches `CanopyCredits.sol`. Added structs, `getIssuance`, `tokenIdFor`, `bufferBalance`, `retirementCount`, `totalSupply`, the buffer rounding rule and custom errors. Nothing removed or renamed.
+- v0.2 (Oct 19): `shared/contracts.json` gains `deployBlock` and `deployTx`.
