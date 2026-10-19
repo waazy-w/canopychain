@@ -1,7 +1,7 @@
 # Tasks: CanopyChain
 
 Deadline **Oct 25, 23:59 UTC**. Feature freeze **Oct 24, 12:00 UTC**.
-Format: `- [ ] Task — branch`. Tick tasks off in the PR that completes them.
+Format: `- [ ] Task`. Tick tasks off in the commit that completes them.
 Tasks marked **(saaz)** need saaz personally (wallets, keys, recording, submitting). Claude Code does the rest.
 
 ## Setup (saaz)
@@ -10,14 +10,14 @@ Tasks marked **(saaz)** need saaz personally (wallets, keys, recording, submitti
 - [ ] Fill in `contracts/.env` and `backend/.env` (saaz)
 
 ## Contracts: `contracts/`
-- [x] Scaffold Hardhat (TS) + OpenZeppelin in `contracts/` — feat/canopy-credits
-- [x] `CanopyCredits.sol`: registerProject, submitVerification (90/10 buffer, no double verification), retire, flagReversal, views, events — feat/canopy-credits
-- [x] Tests: happy paths, access control, double verification, retiring more than the balance, reversal larger than the buffer — feat/canopy-credits
-- [x] Deploy script for Amoy that writes the ABI and address to `shared/contracts.json` and verifies on Polygonscan — feat/deploy-amoy
+- [x] Scaffold Hardhat (TS) + OpenZeppelin in `contracts/`
+- [x] `CanopyCredits.sol`: registerProject, submitVerification (90/10 buffer, no double verification), retire, flagReversal, views, events
+- [x] Tests: happy paths, access control, double verification, retiring more than the balance, reversal larger than the buffer
+- [x] Deploy script for Amoy that writes the ABI and address to `shared/contracts.json` and verifies on Polygonscan
 - [ ] Deploy to Amoy and commit `shared/contracts.json` (needs `contracts/.env`)
 
 ## Backend: `backend/`
-- [x] Scaffold FastAPI + requirements + CORS + JSON storage — feat/backend
+- [x] Scaffold FastAPI + requirements + CORS + JSON storage
 - [x] Project endpoints: POST/GET /api/projects
 - [x] Satellite pipeline: query Sentinel-2 L2A on Planetary Computer for a polygon and date, apply a cloud mask, compute NDVI, measure forest cover in ha
 - [x] Baseline vs current comparison, then the tCO2e estimate, then the report JSON and canonical keccak256 hash
@@ -28,7 +28,7 @@ Tasks marked **(saaz)** need saaz personally (wallets, keys, recording, submitti
 - [x] Cache results for 2 or 3 demo forests so the live demo is fast and reliable
 
 ## Frontend: `frontend/`
-- [x] Scaffold Next.js + Tailwind + wagmi/RainbowKit (Amoy) — feat/frontend
+- [x] Scaffold Next.js + Tailwind + wagmi/RainbowKit (Amoy)
 - [x] Mock data matching the report schema in `docs/api.md`
 - [x] Register project page: draw a polygon on a Leaflet map → POST /api/projects
 - [x] Project page: run verification, before/after NDVI images, report numbers, link to the on-chain transaction

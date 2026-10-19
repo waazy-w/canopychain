@@ -61,11 +61,11 @@ Instructions for every Claude Code session on this project. saaz is the sole dev
 
 ## Git workflow
 
-- `main` must always run. Never commit directly to `main`.
-- Use one branch per task: `feat/<short-name>`, `fix/<short-name>`.
-- Run `git pull --rebase origin main` before starting work and before opening a PR.
-- Keep PRs small and merge them often (at least daily). Reference the task (`Closes #4`).
-- Do not add Claude co-author or attribution lines to commits or PRs.
+- Solo project: commit directly to `main` and push. No feature branches or pull requests.
+- `main` must always run. Run the relevant tests (and `npm run build` for frontend changes) before each commit.
+- Run `git pull --rebase origin main` before starting work.
+- Keep commits small and focused, with clear messages.
+- Do not add Claude co-author or attribution lines to commits.
 
 ## Rules
 
