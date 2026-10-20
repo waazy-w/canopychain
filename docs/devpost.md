@@ -1,6 +1,6 @@
 # Devpost submission draft
 
-Copy each section into the matching Devpost field. Fill in the `TODO` links once the site is hosted (docs/deploy.md) and the video is up.
+Copy each section into the matching Devpost field. Fill in the `TODO` video link once the video is up.
 
 ---
 
@@ -11,7 +11,7 @@ Copy each section into the matching Devpost field. Fill in the `TODO` links once
 **Tracks:** Carbon Markets & Emissions Trading · Climate Data & Environmental Monitoring
 
 **Links**
-- Live demo: TODO (Vercel URL)
+- Live demo: https://canopychain.vercel.app
 - Video: TODO (YouTube / Vimeo, ≤ 3 min)
 - Code: https://github.com/waazy-w/canopychain
 - Contract on Polygon Amoy: https://amoy.polygonscan.com/address/0xeC75933ED22042090908Fd39E95afB90c644C4C2
