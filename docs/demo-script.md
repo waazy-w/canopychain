@@ -8,7 +8,7 @@ The rules ask for a **3-minute** demo. This script is timed to about 2:55. Each 
 - **CanopyChain Oracle** has at least 0.05 POL (faucet.polygon.technology). It pays for approval, verification and the reversal (about 0.02 POL for a full run).
 - **Account 1** acts as the forest owner. It needs about 0.01 POL to retire credits: send some from another account, or claim from the faucet.
 - **CanopyChain Deployer** is the approver (contract admin). Approving is a free signature; it needs no POL.
-- MetaMask's fee estimate on Amoy is inflated (often ~450 gwei). When MetaMask asks to confirm the **retire** transaction: **Market → Advanced**, set **max base fee 40** and **priority fee 35** gwei.
+- MetaMask's Amoy network must use a working RPC: edit the network, add `https://polygon-amoy-bor-rpc.publicnode.com` as the RPC URL and select it. (The dApp sets the retire transaction's gas and fees itself, so no manual fee settings are needed.)
 
 **Screen**
 - Backend and frontend running (or the hosted site), no yellow "Mock data" banner.
@@ -43,7 +43,7 @@ The rules ask for a **3-minute** demo. This script is timed to about 2:55. Each 
 **Say:** "Anyone can re-hash the report in their browser and check it against the chain. If a single number were edited after issuance, this check would fail."
 
 ## Scene 6 · Retire (1:50–2:10)
-**Screen:** switch MetaMask back to **Account 1**. In the Retire panel: amount 10, beneficiary "Acme Corp", reason "2026 business travel". Confirm in MetaMask (fees as above). The certificate page opens.
+**Screen:** switch MetaMask back to **Account 1**. In the Retire panel: amount 10, beneficiary "Acme Corp", reason "2026 business travel". Confirm in MetaMask. The certificate page opens.
 **Say:** "A company retires ten credits to offset its travel. Retiring burns them and stores a permanent certificate on-chain. That tonne can never be sold or claimed again."
 
 ## Scene 7 · Forest loss and reversal (2:10–2:35)

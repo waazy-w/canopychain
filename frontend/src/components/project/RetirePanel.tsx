@@ -4,21 +4,26 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { parseEventLogs } from "viem";
+import { parseEventLogs, parseGwei } from "viem";
 import { useAccount, usePublicClient, useWriteContract } from "wagmi";
 import { canopyCreditsAbi, CONTRACT_ADDRESS, IS_DEPLOYED } from "@/lib/contract";
 import type { VintageOnChain } from "@/lib/contract/hooks";
 import { errorMessage, fmtCredits } from "@/lib/format";
 import { targetChain } from "@/lib/wagmi";
+import { IS_LOCAL_CHAIN } from "@/lib/config";
 import { buttonClass, Card, ErrorBox, inputClass, Notice, Spinner, TxLink } from "../ui";
 import { NotDeployedNotice } from "./OnChainPanel";
 
 type Stage = "idle" | "signing" | "confirming";
 
+// Amoy's fee estimates (and some wallets' RPCs) are unreliable, so on Amoy the dApp sets gas and fees itself:
+// a fixed 35 gwei tip, the network minimum, like the backend oracle.
+const AMOY_PRIORITY_FEE = parseGwei("35");
+
 export function RetirePanel({ rows }: { rows: VintageOnChain[] }) {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const { isConnected, chainId } = useAccount();
+  const { address, isConnected, chainId } = useAccount();
   const publicClient = usePublicClient({ chainId: targetChain.id });
   const { writeContractAsync } = useWriteContract();
 
@@ -71,13 +76,25 @@ export function RetirePanel({ rows }: { rows: VintageOnChain[] }) {
     setTxHash(null);
     try {
       setStage("signing");
-      const hash = await writeContractAsync({
+      const call = {
         address: CONTRACT_ADDRESS,
         abi: canopyCreditsAbi,
         functionName: "retire",
         args: [row.tokenId, parsedAmount, beneficiary.trim(), reason.trim()],
-        chainId: targetChain.id,
-      });
+      } as const;
+      let fees = {};
+      if (!IS_LOCAL_CHAIN && address) {
+        const [gas, block] = await Promise.all([
+          publicClient.estimateContractGas({ ...call, account: address }),
+          publicClient.getBlock(),
+        ]);
+        fees = {
+          gas: (gas * 12n) / 10n,
+          maxPriorityFeePerGas: AMOY_PRIORITY_FEE,
+          maxFeePerGas: (block.baseFeePerGas ?? 0n) * 2n + AMOY_PRIORITY_FEE,
+        };
+      }
+      const hash = await writeContractAsync({ ...call, ...fees, chainId: targetChain.id });
       setTxHash(hash);
       setStage("confirming");
       const receipt = await publicClient.waitForTransactionReceipt({ hash });
