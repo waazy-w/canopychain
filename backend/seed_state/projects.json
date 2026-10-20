@@ -1,0 +1,87 @@
+[
+  {
+    "projectId": 1,
+    "name": "Amazonas Rainforest Block (Brazil)",
+    "owner": "0xCCC8129231e850E9CE29efDB55ac0eF60f5bA593",
+    "polygon": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            -60.614487,
+            -7.21447
+          ],
+          [
+            -60.585513,
+            -7.21447
+          ],
+          [
+            -60.585513,
+            -7.18553
+          ],
+          [
+            -60.614487,
+            -7.18553
+          ],
+          [
+            -60.614487,
+            -7.21447
+          ]
+        ]
+      ]
+    },
+    "areaHa": 1024.2,
+    "createdAt": "2026-10-19T11:20:04.223Z",
+    "status": "active",
+    "onChainRegistered": true,
+    "registerTxHash": "0x2cbd03983863d8b4c883a22bd499d7b5b03f917be57f1cfa20e4e04d06bcde85"
+  },
+  {
+    "projectId": 2,
+    "name": "Rondônia Forest Reserve (Brazil)",
+    "owner": "0x9C9d3834AF7c79Dad3b460E044d5D21Fd11D96D7",
+    "polygon": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            -58.187487,
+            -4.096915
+          ],
+          [
+            -58.187487,
+            -4.075842
+          ],
+          [
+            -58.143694,
+            -4.075842
+          ],
+          [
+            -58.143694,
+            -4.096915
+          ],
+          [
+            -58.187487,
+            -4.096915
+          ]
+        ]
+      ]
+    },
+    "areaHa": 1133.13,
+    "boundaryHash": "0x62930ef4e4b56e4cce12e62cbd737268b3647976fc17ac5070e6f3442a6ab297",
+    "ownerSignature": "0xa49026058e325b38162043244eb6c2d548b0c52dffb74b006fe0b4331a6cbc411b361e2bfe4d9eba8641e324491a21de85896e2d535d21c8ffd74fd7545ba97a1c",
+    "createdAt": "2026-10-20T11:36:55.565Z",
+    "status": "reversed",
+    "review": {
+      "decision": "approve",
+      "reviewer": "0xCCC8129231e850E9CE29efDB55ac0eF60f5bA593",
+      "reviewedAt": "2026-10-20T11:38:44.027Z",
+      "regionalBaselineLossRatePct": 2.1,
+      "tco2ePerHa": 450.0,
+      "note": "Title deed checked",
+      "signature": "0x83645af3854c8be33799228484130344444fb73bad245d40682018dca28fda1101cf52171e2afb71e7f33030286fdaeff89a16718aadaf2bfd0c6a27b289f6731b"
+    },
+    "onChainRegistered": true,
+    "registerTxHash": "0x1ad6fd9a9a3999ae6cb4a835046e75a2dbe4080aedc0848630b48b35cfd7e6fd"
+  }
+]

@@ -26,9 +26,15 @@ export function SatelliteTiles() {
   );
 }
 
-/** Stops zooming out once the world would be smaller than the map box, and re-checks on resize. */
+/** Stops zooming out once the world would be smaller than the map box, and re-checks on resize.
+ *  Also follows the box's own size changes (e.g. a neighbouring card loading), which Leaflet doesn't notice. */
 function FillContainer() {
   const map = useMap();
+  useEffect(() => {
+    const observer = new ResizeObserver(() => map.invalidateSize());
+    observer.observe(map.getContainer());
+    return () => observer.disconnect();
+  }, [map]);
   useEffect(() => {
     const update = () => {
       const { x, y } = map.getSize();

@@ -243,11 +243,11 @@ function ScrubWords({ text }: { text: string }) {
   ));
 }
 
-/** Hero report card built from the cached Sentinel-2 analysis of the Danum Valley demo forest (backend/demo_cache). */
+/** Hero report card: the real verification report of project #2 on Polygon Amoy (rep_2026-10-20_a7d04d). */
 function ExampleReport() {
   const rows = [
-    { label: "Forest cover", before: "1,012.8 ha", after: "1,002.4 ha" },
-    { label: "Mean NDVI", before: "0.89", after: "0.87" },
+    { label: "Forest cover", before: "1,131.8 ha", after: "1,132.1 ha" },
+    { label: "Mean NDVI", before: "0.84", after: "0.87" },
   ];
   return (
     <div className="scrub-hero-card relative">
@@ -255,8 +255,8 @@ function ExampleReport() {
       <div className="relative rounded-2xl bg-surface/95 p-5 shadow-2xl shadow-black/40 backdrop-blur">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-xs text-muted">Verification report · example</p>
-            <p className="mt-0.5 font-semibold text-ink">Danum Valley Forest, Borneo</p>
+            <p className="text-xs text-muted">Verification report · Polygon Amoy</p>
+            <p className="mt-0.5 font-semibold text-ink">Rondônia Forest Reserve, Brazil</p>
           </div>
           <span className="inline-flex items-center gap-1.5 rounded-full border border-accent/30 bg-accent/10 px-2.5 py-0.5 text-xs font-medium text-emerald-300">
             <span className="h-1.5 w-1.5 rounded-full bg-accent" />
@@ -269,7 +269,7 @@ function ExampleReport() {
             <div key={year} className="overflow-hidden rounded-xl border border-line">
               <img
                 src={`/landing/ndvi-${year}.png`}
-                alt={`NDVI of the Danum Valley demo forest, ${year}`}
+                alt={`NDVI of the Rondônia Forest Reserve, ${year}`}
                 className="h-24 w-full object-cover opacity-90"
               />
               <p className="flex justify-between bg-raised px-2.5 py-1.5 text-[11px] text-muted">
@@ -291,16 +291,23 @@ function ExampleReport() {
           ))}
           <div className="flex items-center justify-between py-2">
             <dt className="text-muted">Credits issued</dt>
-            <dd className="font-mono font-semibold text-accent">9,395 tCO2e</dd>
+            <dd className="font-mono font-semibold text-accent">10,696 tCO2e</dd>
           </div>
         </dl>
 
         <div className="mt-3 flex items-center justify-between rounded-lg border border-line bg-canvas px-3 py-2 text-xs">
           <span className="text-muted">Report hash</span>
-          <span className="flex items-center gap-1.5 font-mono text-body">
-            0x9f3c…a41e
-            <span className="text-accent" title="Matches the on-chain attestation">✓ on-chain</span>
-          </span>
+          <a
+            href="https://amoy.polygonscan.com/tx/0x5763f29f29211ce03d9d72cfc84fe8d166cca8992cdf704bc9bd6a2694502cbe"
+            target="_blank"
+            rel="noreferrer"
+            className="flex items-center gap-1.5 font-mono text-body hover:text-ink"
+          >
+            0x39b2…c31b
+            <span className="text-accent" title="Matches the on-chain attestation; opens the transaction on Polygonscan">
+              ✓ on-chain
+            </span>
+          </a>
         </div>
       </div>
     </div>

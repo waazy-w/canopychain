@@ -1,0 +1,82 @@
+{
+  "reportId": "rep_2026-10-20_a7d04d",
+  "kind": "verification",
+  "projectId": 2,
+  "polygon": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          -58.187487,
+          -4.096915
+        ],
+        [
+          -58.187487,
+          -4.075842
+        ],
+        [
+          -58.143694,
+          -4.075842
+        ],
+        [
+          -58.143694,
+          -4.096915
+        ],
+        [
+          -58.187487,
+          -4.096915
+        ]
+      ]
+    ]
+  },
+  "areaHa": 1133.13,
+  "vintage": 2026,
+  "baseline": {
+    "date": "2025-08-24",
+    "targetDate": "2025-10-01",
+    "forestCoverHa": 1131.76,
+    "meanNdvi": 0.836,
+    "validCoveragePct": 100.0
+  },
+  "current": {
+    "date": "2026-08-14",
+    "targetDate": "2026-10-01",
+    "forestCoverHa": 1132.05,
+    "meanNdvi": 0.869,
+    "validCoveragePct": 100.0
+  },
+  "deforestedHa": 0.0,
+  "regionalBaselineLossRatePct": 2.1,
+  "avoidedLossHa": 23.77,
+  "tco2ePerHa": 450.0,
+  "creditsEstimated": 10696,
+  "methodology": "canopychain-prototype-v0 (NOT a certified methodology)",
+  "imagery": {
+    "source": "sentinel-2-l2a (Microsoft Planetary Computer)",
+    "baselineSceneIds": [
+      "S2B_MSIL2A_20250824T141709_R010_T21MUR_20250824T175512"
+    ],
+    "currentSceneIds": [
+      "S2C_MSIL2A_20260814T141711_R010_T21MUR_20260814T191310"
+    ],
+    "previewBaselineUrl": "/api/reports/rep_2026-10-20_a7d04d/baseline.png",
+    "previewCurrentUrl": "/api/reports/rep_2026-10-20_a7d04d/current.png",
+    "previewBounds": [
+      [
+        -4.097001,
+        -58.187563
+      ],
+      [
+        -4.075772,
+        -58.143575
+      ]
+    ],
+    "pixelSizeM": 10.0,
+    "simulatedDeforestation": false
+  },
+  "status": "verified",
+  "createdAt": "2026-10-20T11:40:28.018Z",
+  "reportHash": "0x39b24152f4681b62e4d5f778800e95ffdbb99cdd0dea49a0372d1b908e7dc31b",
+  "txHash": "0x5763f29f29211ce03d9d72cfc84fe8d166cca8992cdf704bc9bd6a2694502cbe",
+  "onChainError": null
+}

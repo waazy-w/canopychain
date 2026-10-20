@@ -1,0 +1,85 @@
+{
+  "reportId": "rep_2026-10-20_eb6f41",
+  "kind": "monitoring",
+  "projectId": 2,
+  "polygon": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          -58.187487,
+          -4.096915
+        ],
+        [
+          -58.187487,
+          -4.075842
+        ],
+        [
+          -58.143694,
+          -4.075842
+        ],
+        [
+          -58.143694,
+          -4.096915
+        ],
+        [
+          -58.187487,
+          -4.096915
+        ]
+      ]
+    ]
+  },
+  "areaHa": 1133.13,
+  "vintage": 2026,
+  "baseline": {
+    "date": "2025-08-24",
+    "targetDate": "2025-10-01",
+    "forestCoverHa": 1131.76,
+    "meanNdvi": 0.836,
+    "validCoveragePct": 100.0
+  },
+  "current": {
+    "date": "2026-08-14",
+    "targetDate": "2026-10-01",
+    "forestCoverHa": 962.24,
+    "meanNdvi": 0.761,
+    "validCoveragePct": 100.0
+  },
+  "deforestedHa": 169.81,
+  "regionalBaselineLossRatePct": 2.1,
+  "avoidedLossHa": 0.0,
+  "tco2ePerHa": 450.0,
+  "creditsEstimated": 0,
+  "methodology": "canopychain-prototype-v0 (NOT a certified methodology)",
+  "imagery": {
+    "source": "sentinel-2-l2a (Microsoft Planetary Computer)",
+    "baselineSceneIds": [
+      "S2B_MSIL2A_20250824T141709_R010_T21MUR_20250824T175512"
+    ],
+    "currentSceneIds": [
+      "S2C_MSIL2A_20260814T141711_R010_T21MUR_20260814T191310"
+    ],
+    "previewBaselineUrl": "/api/reports/rep_2026-10-20_eb6f41/baseline.png",
+    "previewCurrentUrl": "/api/reports/rep_2026-10-20_eb6f41/current.png",
+    "previewBounds": [
+      [
+        -4.097001,
+        -58.187563
+      ],
+      [
+        -4.075772,
+        -58.143575
+      ]
+    ],
+    "pixelSizeM": 10.0,
+    "simulatedDeforestation": true
+  },
+  "status": "reversal_detected",
+  "createdAt": "2026-10-20T11:51:11.504Z",
+  "newlyDeforestedHa": 169.81,
+  "reversalOfReportId": "rep_2026-10-20_a7d04d",
+  "reportHash": "0x5617f5d2b7b28b385df7d940f11386972f721bd027b67d292109fcf79fe7706a",
+  "txHash": "0xa743b0a70e4ba290ec5cfd77b6a2572a978a9a17d1eb2ea1cc1de3b2519f144e",
+  "onChainError": null,
+  "lostCredits": 76414
+}
