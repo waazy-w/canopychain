@@ -29,6 +29,7 @@ docs/        API contract, architecture, security, impact docs
 ```
 
 ## Live deployment
+- **Demo video:** https://youtu.be/TDuQf8nNZao
 - **dApp:** https://canopychain.vercel.app (connect MetaMask on Polygon Amoy)
 - **Backend API:** https://canopychain-api.onrender.com/api/health (free plan: the first request after idle time can take about a minute)
 - **Contract:** `CanopyCredits` on Polygon Amoy at [`0xeC75933ED22042090908Fd39E95afB90c644C4C2`](https://amoy.polygonscan.com/address/0xeC75933ED22042090908Fd39E95afB90c644C4C2) (address and ABI in [`shared/contracts.json`](shared/contracts.json))
