@@ -17,7 +17,7 @@ Many forest carbon credits are over-issued, double-counted, or keep trading afte
 ## Architecture
 ![CanopyChain architecture](docs/architecture.png)
 
-More detail: [overview](docs/overview.md) · [security](docs/security.md) · [climate impact](docs/impact.md) · [roadmap](docs/roadmap.md) · [API and contract interface](docs/api.md) · [deployment](docs/deploy.md)
+More detail: [overview](docs/overview.md) · [security](docs/security.md) · [climate impact](docs/impact.md) · [roadmap](docs/roadmap.md) · [API and contract interface](docs/api.md) · [deployment](docs/deploy.md) · [user testing](docs/user-testing.md)
 
 ## Repo layout
 ```

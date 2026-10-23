@@ -42,10 +42,14 @@ export default function RegisterPage() {
     onSuccess: ({ projectId }) => router.push(`/projects/${projectId}`),
   });
 
+  // Shown as a checklist so connecting a wallet doesn't read as "registered": the signature below is the registration.
+  const checklist = [
+    { label: "Connect the wallet that owns the forest", done: !!address },
+    { label: "Give the project a name", done: !!name.trim() },
+    { label: "Draw the forest boundary on the map", done: !!polygon },
+  ];
   const problems = [
-    !address && "Connect the wallet that owns the forest.",
-    !name.trim() && "Give the project a name.",
-    !polygon && "Draw the forest boundary on the map.",
+    ...checklist.filter((c) => !c.done).map((c) => c.label),
     areaHa > MAX_AREA_HA && `Keep the area under ${fmtHa(MAX_AREA_HA)} so verification stays fast.`,
   ].filter(Boolean) as string[];
 
@@ -100,12 +104,22 @@ export default function RegisterPage() {
               <strong className="text-ink">{polygon ? fmtHa(areaHa) : "draw a polygon"}</strong>
             </div>
 
-            {problems.length > 0 && (
-              <ul className="list-inside list-disc text-xs text-muted">
-                {problems.map((p) => (
-                  <li key={p}>{p}</li>
-                ))}
-              </ul>
+            <ul className="space-y-1 text-xs">
+              {checklist.map((c) => (
+                <li key={c.label} className={`flex gap-2 ${c.done ? "text-accent" : "text-muted"}`}>
+                  <span aria-hidden>{c.done ? "✓" : "○"}</span>
+                  {c.label}
+                </li>
+              ))}
+              {areaHa > MAX_AREA_HA && (
+                <li className="text-red-300">Keep the area under {fmtHa(MAX_AREA_HA)} so verification stays fast.</li>
+              )}
+            </ul>
+            {problems.length === 0 && !register.isPending && (
+              <p className="text-xs text-muted">
+                Not registered yet: press <strong className="text-ink">Sign &amp; register</strong> and approve the signature in
+                your wallet.
+              </p>
             )}
             {register.isError && <ErrorBox>{errorMessage(register.error)}</ErrorBox>}
 

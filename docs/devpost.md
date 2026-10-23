@@ -14,6 +14,7 @@ Copy each section into the matching Devpost field. Fill in the `TODO` video link
 - Live demo: https://canopychain.vercel.app
 - Video: TODO (YouTube / Vimeo, ≤ 3 min)
 - Code: https://github.com/waazy-w/canopychain
+- User testing: https://github.com/waazy-w/canopychain/blob/main/docs/user-testing.md
 - Contract on Polygon Amoy: https://amoy.polygonscan.com/address/0xeC75933ED22042090908Fd39E95afB90c644C4C2
 
 ---
